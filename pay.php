@@ -65,6 +65,7 @@ if (isset($_POST['submit'])) {
     ];
 
     $curl = curl_init('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest');
+    $CallBackURL = 'https://shrouded-meadow-45282-36291630ca1c.herokuapp.com/callback.php'; // Replace with your actual URL
     curl_setopt($curl, CURLOPT_HTTPHEADER, $stkheader);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_POST, true);
