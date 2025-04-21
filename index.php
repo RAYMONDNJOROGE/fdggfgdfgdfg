@@ -112,6 +112,10 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
+        <div id="popup5" class="popup">
+        <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
+        </div>
+
         
     <div class="wrapper">
     <form autocomplete="off" onsubmit="return validatePhone2()">
@@ -1511,12 +1515,34 @@ function validatePhone2() {
     const data = await res.json();
     console.log("Payment Status........:", data);
 
-    if (data.paymentStatus !== 'pending' || attempts >= 10) {
+    if (data.paymentStatus === 'success') {
       clearInterval(interval);
-      console.log("✅Final Payment Status:", data.paymentStatus);
+
+      // ✅ Show popup
+      document.getElementById("paymentMessage").textContent = "✅ Payment Successful!. Redirecting...";
+      openPopup("popup5");
+
+      // ⏳ Auto-close after 5 seconds
+      setTimeout(() => {
+        closePopup("popup5");
+      }, 5000);
+
+    } else if (data.paymentStatus === 'failed' || attempts >= 10) {
+      clearInterval(interval);
+
+      document.getElementById("paymentMessage").textContent =
+        data.paymentStatus === 'failed'
+          ? "❌ Payment Failed"
+          : "⏰ Payment Status Timeout";
+      openPopup("popup5");
+
+      setTimeout(() => {
+        closePopup("popup5");
+      }, 5000);
     }
-  }, 2000); // Check every 2 seconds (30 sec max)
+  }, 2000); // every 2s, max 10 attempts
 }
+
 
 
 async function checkLatestPayment() {
