@@ -1397,13 +1397,13 @@ async function handlePaymentSubmit(event) {
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
-  if (!/^254\d*$/.test(phone)) {
+  if (!/^254\d{6,}$/.test(phone)) {
     message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
     return;
   }
 
-  openPopup('popup3'); // Loading spinner
+  openPopup('popup3'); // Show loading spinner
 
   try {
     const res = await fetch("pay.php", {
@@ -1413,36 +1413,33 @@ async function handlePaymentSubmit(event) {
     });
 
     const data = await res.json();
-    console.log("STK Push Response:", data);
+    console.log("STK Response:", data);
 
+    if (data.ResponseCode === "0") {
+      console.log("✅ STK Push Sent. Awaiting payment...");
+      // Poll for payment status using CheckoutRequestID
+      pollPaymentStatus(data.CheckoutRequestID);
+    } else {
+      console.error("❌ Failed to send STK push:", data.CustomerMessage);
+    }
+
+    closePopup('popup3');
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent = data.CustomerMessage || "STK Push Sent";
 
     setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent =
-        data.ResponseCode === "0"
-          ? "Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
-          : `Failed: ${data.errorMessage || "Unknown error"}`;
-
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 3000);
-    }, 1000);
+      closePopup('popup4');
+    }, 3000);
 
   } catch (error) {
     console.error("STK Push failed:", error);
-
-    setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "NETWORK ERROR❌ . Please Try Again!";
-
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 4000);
-    }, 1000);
+    closePopup('popup3');
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
+    setTimeout(() => closePopup('popup4'), 4000);
   }
 }
+
 
 
   
@@ -1470,7 +1467,7 @@ function validatePhone2() {
 
   const interval = setInterval(async () => {
     attempts++;
-    console.log(`Checking payment status (attempt ${attempts})...`);
+    console.log(`🔁 Checking payment status... (Attempt ${attempts})`);
 
     const res = await fetch("check_payment_status.php", {
       method: "POST",
@@ -1479,13 +1476,13 @@ function validatePhone2() {
     });
 
     const data = await res.json();
-    console.log("Payment Status Response:", data);
+    console.log("📦 Payment Status:", data);
 
-    if (data.paymentStatus === 'success' || data.paymentStatus === 'failed' || attempts >= 6) {
+    if (data.paymentStatus !== 'pending' || attempts >= 6) {
       clearInterval(interval);
-      console.log("✅ Final Payment Status:", data.paymentStatus.toUpperCase());
+      console.log("✅ Final Payment Status:", data.paymentStatus);
     }
-  }, 5000); // Check every 5 seconds
+  }, 5000); // Check every 5 seconds (30 sec max)
 }
                 </script>
    

@@ -73,6 +73,13 @@ if (isset($_POST['submit'])) {
     $response = curl_exec($curl);
     curl_close($curl);
 
-    echo $response;
+    $responseData = json_decode($response, true);
+
+echo json_encode([
+    'ResponseCode' => $responseData['ResponseCode'] ?? '1',
+    'CustomerMessage' => $responseData['CustomerMessage'] ?? 'No message',
+    'CheckoutRequestID' => $responseData['CheckoutRequestID'] ?? null
+]);
+
 }
 ?>
