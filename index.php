@@ -1413,6 +1413,8 @@ async function handlePaymentSubmit(event) {
     });
 
     const data = await res.json();
+    console.log("STK Push Response:", data);
+
 
     setTimeout(() => {
       closePopup('popup3');

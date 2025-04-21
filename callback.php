@@ -1,30 +1,38 @@
 <?php
-// Get incoming JSON from Safaricom
+// Get the raw POST data from Safaricom
 $data = file_get_contents("php://input");
-file_put_contents("stk_response.json", $data); // Optional: save raw input for debugging
 
+// Optional: Save the raw input to a file for logging/debugging
+file_put_contents("stk_response.json", $data);
+
+// Convert JSON to associative array
 $response = json_decode($data, true);
 
-// Ensure response has stkCallback
+// Check if it's a valid STK Callback
 if (isset($response['Body']['stkCallback'])) {
     $callback = $response['Body']['stkCallback'];
     $resultCode = $callback['ResultCode'];
     $resultDesc = $callback['ResultDesc'];
 
     if ($resultCode == 0) {
-        // Success
+        // Payment was successful
         $metadata = $callback['CallbackMetadata']['Item'];
+
+        // Extract useful data
         $amount = $metadata[0]['Value'];
         $mpesaCode = $metadata[1]['Value'];
-        $phone = $metadata[4]['Value'];
+        $transactionDate = $metadata[3]['Value'];
+        $phoneNumber = $metadata[4]['Value'];
 
-        // Save to file or database
-        file_put_contents("successful.txt", "$mpesaCode | $amount | $phone\n", FILE_APPEND);
+        // Example: Save to a text file (you can insert into a database instead)
+        $log = "SUCCESS | MPESA CODE: $mpesaCode | Amount: $amount | Phone: $phoneNumber | Date: $transactionDate\n";
+        file_put_contents("payments_success.txt", $log, FILE_APPEND);
     } else {
-        // Failed or Cancelled
-        file_put_contents("failed.txt", "$resultCode - $resultDesc\n", FILE_APPEND);
+        // Payment failed or was cancelled
+        $log = "FAILED | Code: $resultCode | Desc: $resultDesc\n";
+        file_put_contents("payments_failed.txt", $log, FILE_APPEND);
     }
 }
 
-http_response_code(200); // Always respond with 200 OK to avoid retry
+http_response_code(200); // Always respond with 200 OK
 ?>
