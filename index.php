@@ -96,7 +96,7 @@
 
 <!--Payment notification proccessing-->
         <div id="popup3" class="popup">
-        <p style="font-weight: 600; color: blue" class="error">Kindly check your phone as you wait for the payment request </p>   
+        <p style="font-weight: 600; color: blue" class="error">Kindly Check your Phone as you Wait for the Payment Request </p>   
         <div class="spinner"></div> <!-- Loading animation -->  
         </div>
 
