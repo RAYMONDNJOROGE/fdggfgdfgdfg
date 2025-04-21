@@ -1439,7 +1439,7 @@ setTimeout(async () => {
   } catch (error) {
     console.error("Error checking payment:", error);
   }
-}, 10000); // Check after 15 seconds
+}, 30000); // Check after 15 seconds
 
 
   try {
