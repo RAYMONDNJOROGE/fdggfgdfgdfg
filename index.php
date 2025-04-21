@@ -1422,17 +1422,20 @@ setTimeout(async () => {
 
     if (data.phone && data.amount) {
       document.getElementById('paymentMessage').textContent =
-        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+        `✅ Payment of KES ${data.amount} received from ${data.phone}.Redirecting...`;
       openPopup('popupSuccess'); // Show success popup
     } else {
       openPopup('popup4'); // Show failure notice
       document.getElementById("stkStatusMessage").textContent =
-        "Payment not made!";
+        "Payment not made!❌";
     }
+    setTimeout(() => {
+  closePopup('popup5'); // Close it after 5 seconds
+}, 3000);
   } catch (error) {
     console.error("Error checking payment:", error);
   }
-}, 15000); // Check after 15 seconds
+}, 10000); // Check after 15 seconds
 
 
   try {
@@ -1506,13 +1509,13 @@ function validatePhone2() {
     });
 
     const data = await res.json();
-    console.log("📦 Payment Status:", data);
+    console.log("Payment Status........:", data);
 
-    if (data.paymentStatus !== 'pending' || attempts >= 6) {
+    if (data.paymentStatus !== 'pending' || attempts >= 10) {
       clearInterval(interval);
-      console.log("✅ Final Payment Status:", data.paymentStatus);
+      console.log("✅Final Payment Status:", data.paymentStatus);
     }
-  }, 5000); // Check every 5 seconds (30 sec max)
+  }, 2000); // Check every 2 seconds (30 sec max)
 }
 
 
