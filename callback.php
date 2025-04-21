@@ -1,38 +1,41 @@
 <?php
-// Get the raw POST data from Safaricom
+// callback.php
+
 $data = file_get_contents("php://input");
+$log = fopen("stk_callback_log.json", "a+");
+fwrite($log, $data . "\n\n");
+fclose($log);
 
-// Optional: Save the raw input to a file for logging/debugging
-file_put_contents("stk_response.json", $data);
+// Decode the incoming JSON
+$decoded = json_decode($data, true);
 
-// Convert JSON to associative array
-$response = json_decode($data, true);
+// Extract data for console (example)
+if (isset($decoded['Body']['stkCallback'])) {
+    $callback = $decoded['Body']['stkCallback'];
 
-// Check if it's a valid STK Callback
-if (isset($response['Body']['stkCallback'])) {
-    $callback = $response['Body']['stkCallback'];
     $resultCode = $callback['ResultCode'];
     $resultDesc = $callback['ResultDesc'];
+    $receipt = 'N/A';
+    $amount = 'N/A';
 
-    if ($resultCode == 0) {
-        // Payment was successful
-        $metadata = $callback['CallbackMetadata']['Item'];
-
-        // Extract useful data
-        $amount = $metadata[0]['Value'];
-        $mpesaCode = $metadata[1]['Value'];
-        $transactionDate = $metadata[3]['Value'];
-        $phoneNumber = $metadata[4]['Value'];
-
-        // Example: Save to a text file (you can insert into a database instead)
-        $log = "SUCCESS | MPESA CODE: $mpesaCode | Amount: $amount | Phone: $phoneNumber | Date: $transactionDate\n";
-        file_put_contents("payments_success.txt", $log, FILE_APPEND);
-    } else {
-        // Payment failed or was cancelled
-        $log = "FAILED | Code: $resultCode | Desc: $resultDesc\n";
-        file_put_contents("payments_failed.txt", $log, FILE_APPEND);
+    if (isset($callback['CallbackMetadata']['Item'])) {
+        foreach ($callback['CallbackMetadata']['Item'] as $item) {
+            if ($item['Name'] == 'MpesaReceiptNumber') {
+                $receipt = $item['Value'];
+            }
+            if ($item['Name'] == 'Amount') {
+                $amount = $item['Value'];
+            }
+        }
     }
-}
 
-http_response_code(200); // Always respond with 200 OK
-?>
+    // Store or respond with it (for now, just respond back)
+    echo json_encode([
+        'paymentStatus' => $resultCode == 0 ? 'success' : 'failed',
+        'resultDesc' => $resultDesc,
+        'receipt' => $receipt,
+        'amount' => $amount
+    ]);
+} else {
+    echo json_encode(['error' => 'Invalid callback format']);
+}
