@@ -103,7 +103,6 @@
 <!--STK message-->
         <div id="popup4" class="popup">
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
-        <button onclick="closePopup('popup4')" class="button-pop" style="background-color: rgb(10, 13, 113)">Ok</button>
         </div>
 
         
@@ -1420,13 +1419,13 @@ async function handlePaymentSubmit(event) {
       openPopup('popup4');
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "✅ Payment request sent successfully!"
+          ? "Payment request sent successfully!"
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
         closePopup('popup4');
-      }, 3000);
-    }, 5000);
+      }, 4000);
+    }, 3000);
 
   } catch (error) {
     console.error("STK Push failed:", error);
@@ -1434,7 +1433,7 @@ async function handlePaymentSubmit(event) {
     setTimeout(() => {
       closePopup('popup3');
       openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "❌ Network error. Please try again!";
+      document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
 
       setTimeout(() => {
         closePopup('popup4');
