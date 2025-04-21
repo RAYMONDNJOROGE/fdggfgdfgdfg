@@ -1378,14 +1378,16 @@ function openPopup(id) {
 //check if phone number is valid
 let selectedAmount = 0;
 
+// Triggered by fixed-amount button
 function handlePayment(event, amount) {
-  event.preventDefault(); // Not strictly necessary here unless it's inside a <form>
-  selectedAmount = amount;
-  openPopup('popup1'); // Show the phone input popup
+  event.preventDefault();
+  selectedAmount = amount; // Store selected amount
+  openPopup('popup1');     // Show phone input form
 }
-// When form is submitted inside popup1
-async function handlePaymentSubmit(event, amount) {
-  event.preventDefault(); // Prevent form from refreshing
+
+// Form submission from popup1
+async function handlePaymentSubmit(event) {
+  event.preventDefault();
 
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
@@ -1396,13 +1398,13 @@ async function handlePaymentSubmit(event, amount) {
     return;
   }
 
-  openPopup('popup3'); // Show loading spinner
+  openPopup('popup3'); // Loading spinner
 
   try {
     const res = await fetch("pay.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${amount}&submit=1`
+      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
     });
 
     const data = await res.json();
@@ -1416,7 +1418,7 @@ async function handlePaymentSubmit(event, amount) {
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
-        closePopup('popup4'); // Automatically clears inputs in closePopup
+        closePopup('popup4');
       }, 5000);
     }, 10000);
 
@@ -1434,6 +1436,7 @@ async function handlePaymentSubmit(event, amount) {
     }, 10000);
   }
 }
+
 
   
   
