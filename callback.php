@@ -1,41 +1,21 @@
 <?php
-// callback.php
+$data = file_get_contents('php://input');
+file_put_contents('mpesa_callback_log.json', $data . PHP_EOL, FILE_APPEND); // optional log
 
-$data = file_get_contents("php://input");
-$log = fopen("stk_callback_log.json", "a+");
-fwrite($log, $data . "\n\n");
-fclose($log);
+$callbackData = json_decode($data, true);
 
-// Decode the incoming JSON
-$decoded = json_decode($data, true);
+if (
+    isset($callbackData['Body']['stkCallback']['ResultCode']) &&
+    $callbackData['Body']['stkCallback']['ResultCode'] == 0
+) {
+    $meta = $callbackData['Body']['stkCallback']['CallbackMetadata']['Item'];
 
-// Extract data for console (example)
-if (isset($decoded['Body']['stkCallback'])) {
-    $callback = $decoded['Body']['stkCallback'];
+    $info = [
+        'phone' => $meta[4]['Value'] ?? '',
+        'amount' => $meta[0]['Value'] ?? '',
+        'checkoutRequestID' => $callbackData['Body']['stkCallback']['CheckoutRequestID'],
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
 
-    $resultCode = $callback['ResultCode'];
-    $resultDesc = $callback['ResultDesc'];
-    $receipt = 'N/A';
-    $amount = 'N/A';
-
-    if (isset($callback['CallbackMetadata']['Item'])) {
-        foreach ($callback['CallbackMetadata']['Item'] as $item) {
-            if ($item['Name'] == 'MpesaReceiptNumber') {
-                $receipt = $item['Value'];
-            }
-            if ($item['Name'] == 'Amount') {
-                $amount = $item['Value'];
-            }
-        }
-    }
-
-    // Store or respond with it (for now, just respond back)
-    echo json_encode([
-        'paymentStatus' => $resultCode == 0 ? 'success' : 'failed',
-        'resultDesc' => $resultDesc,
-        'receipt' => $receipt,
-        'amount' => $amount
-    ]);
-} else {
-    echo json_encode(['error' => 'Invalid callback format']);
+    file_put_contents('latest_payment.json', json_encode($info));
 }

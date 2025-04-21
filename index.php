@@ -99,6 +99,13 @@
         <p style="font-weight: 600; color: blue" class="error">Kindly Wait for the Payment Request on your Phone</p>   
         <div class="spinner"></div> <!-- Loading animation -->  
         </div>
+<!--success poup-->
+<div class="popup" id="popupSuccess">
+  <div class="popup-content">
+    <p id="paymentMessage"></p>
+    <button onclick="closePopup('popupSuccess')">Close</button>
+  </div>
+</div>
 
 <!--STK message-->
         <div id="popup4" class="popup">
@@ -1404,6 +1411,29 @@ async function handlePaymentSubmit(event) {
   }
 
   openPopup('popup3'); // Show loading spinner
+
+  // After showing loading spinner popup (popup3)
+setTimeout(async () => {
+  try {
+    const response = await fetch('latest_payment.php');
+    const data = await response.json();
+
+    closePopup('popup3'); // Hide loading spinner
+
+    if (data.phone && data.amount) {
+      document.getElementById('paymentMessage').textContent =
+        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+      openPopup('popupSuccess'); // Show success popup
+    } else {
+      openPopup('popup4'); // Show failure notice
+      document.getElementById("stkStatusMessage").textContent =
+        "Payment not made!";
+    }
+  } catch (error) {
+    console.error("Error checking payment:", error);
+  }
+}, 15000); // Check after 15 seconds
+
 
   try {
     const res = await fetch("pay.php", {
