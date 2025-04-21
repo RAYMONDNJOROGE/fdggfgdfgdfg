@@ -96,7 +96,7 @@
 
 <!--Payment notification proccessing-->
 <div id="popup3" class="popup">
-    <p style="font-weight: 600;" class="error">Kindly check your phone and enter your pin!</p>   
+    <p style="font-weight: 600;" class="error">Kindly check your phone for the payment request</p>   
     <div class="spinner"></div> <!-- Loading animation -->  
   </div>
 
@@ -1414,7 +1414,7 @@ async function handlePaymentSubmit(event) {
       openPopup('popup4');
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "STK Push sent successfully. Check your phone!"
+          ? "STK Push sent successfully!"
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
