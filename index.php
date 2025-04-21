@@ -1398,7 +1398,7 @@ async function handlePaymentSubmit(event) {
   const message = document.getElementById("message");
 
   if (!/^254\d*$/.test(phone)) {
-    message.textContent = "Error! Use format 254XXXXXXXXX";
+    message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
     return;
   }
@@ -1419,7 +1419,7 @@ async function handlePaymentSubmit(event) {
       openPopup('popup4');
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "Payment request sent successfully!. Please Enter your M-pesa PIN"
+          ? "Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
@@ -1433,7 +1433,7 @@ async function handlePaymentSubmit(event) {
     setTimeout(() => {
       closePopup('popup3');
       openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "Network error❌ . Please try again!";
+      document.getElementById("stkStatusMessage").textContent = "NETWORK ERROR❌ . Please Try Again!";
 
       setTimeout(() => {
         closePopup('popup4');
