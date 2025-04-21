@@ -88,64 +88,64 @@
         </div> 
     
 <!--This is the status pop-up *2-->
-        <div id="popup2" class="popup2">
+            <div id="popup2" class="popup2">
             <p id="message" class="error" style="font-weight: 600;"></p> 
             <button onclick="closePopup('popup2')" class="button-pop" style="background-color: rgb(164, 4, 4)">Ok</button>
-        </div>
+            </div>
 
 
 <!--Payment notification proccessing-->
-<div id="popup3" class="popup">
-    <p style="font-weight: 600;" class="error">Kindly check your phone as you wait for the payment request </p>   
-    <div class="spinner"></div> <!-- Loading animation -->  
-  </div>
+        <div id="popup3" class="popup">
+        <p style="font-weight: 600; color: blue" class="error">Kindly check your phone as you wait for the payment request </p>   
+        <div class="spinner"></div> <!-- Loading animation -->  
+        </div>
 
 <!--STK message-->
-<div id="popup4" class="popup">
-    <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
-    <button onclick="closePopup('popup4')" class="button-pop" style="background-color: rgb(164, 4, 4)">Ok</button>
-  </div>
-
+        <div id="popup4" class="popup">
+        <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
+        <button onclick="closePopup('popup4')" class="button-pop" style="background-color: rgb(10, 13, 113)">Ok</button>
+        </div>
 
         
     <div class="wrapper">
-        <form autocomplete="off" onsubmit="return validatePhone2()">
-         <div>
+    <form autocomplete="off" onsubmit="return validatePhone2()">
+    <div>
             <h1 class="h1-wrapper">Already have an active subscription?</h1>
-         </div>
-          <div>
+    </div>
+
+    <div>
             <h2 class="h2-wrapper">Enter your Safaricom number to Reconnect</h2>
-         </div>
-          <div>
-            <input placeholder="254XXXXXXX" class="input1" id="phone2" required>
-         </div>
-        <div>
-            <input type="submit" value="Reconnect" class="recon-button">
-        </div>
-      </form>
+    </div>
+    <div>
+    <input placeholder="254XXXXXXX" class="input1" id="phone2" required>
+    </div>
+    <div>
+    <input type="submit" value="Reconnect" class="recon-button">
+    </div>
+    </form>
     </div>
 
 
 
     <div class="wrapper">
-        <form>
-           <div>
-              <h1 class="h1-wrapper" style="color: rgb(12, 12, 219);"><u>Voucher Subscription</u></h1>
-           </div>
-           <div>
-            <p class="note">Contact Admin for Voucher top-up</p>
-         </div>
-           <div style="margin-bottom: 10px; margin-top: 30px;">
-            <input type="text" placeholder="Username" class="input1">
-         </div>
-            <div style="margin-top: 20px;">
-              <input type="password" placeholder="Password" class="input1">
-           </div>
-          <div>
-              <input type="submit" value="Connect" class="recon-button">
-          </div>
-        </form>
-      </div>
+    <form>
+    <div>
+    <h1 class="h1-wrapper" style="color: rgb(12, 12, 219);"><u>Voucher Subscription</u></h1>
+    </div>
+    <div>
+    <p class="note">Contact Admin for Voucher top-up</p>
+    </div>
+    <div style="margin-bottom: 10px; margin-top: 30px;">
+    <input type="text" placeholder="Username" class="input1">
+    </div>
+    <div style="margin-top: 20px;">
+    <input type="password" placeholder="Password" class="input1">
+    </div>
+    <div>
+    <input type="submit" value="Connect" class="recon-button">
+    </div>
+    </form>
+    </div>
      <footer class="boxcontainer-footer">
                 <div>
                     <h1 class="h2-wrapper">Customer Care: 0791024153</h1>
@@ -1420,12 +1420,12 @@ async function handlePaymentSubmit(event) {
       openPopup('popup4');
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "Prompt sent successfully!"
+          ? "✅ Payment request sent successfully!"
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
         closePopup('popup4');
-      }, 5000);
+      }, 3000);
     }, 5000);
 
   } catch (error) {
@@ -1434,11 +1434,11 @@ async function handlePaymentSubmit(event) {
     setTimeout(() => {
       closePopup('popup3');
       openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
+      document.getElementById("stkStatusMessage").textContent = "❌ Network error. Please try again!";
 
       setTimeout(() => {
         closePopup('popup4');
-      }, 5000);
+      }, 3000);
     }, 5000);
   }
 }
