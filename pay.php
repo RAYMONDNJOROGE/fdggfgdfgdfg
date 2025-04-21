@@ -27,7 +27,7 @@ if (isset($_POST['submit'])) {
     $Password = base64_encode($BusinessShortCode . $Passkey . $Timestamp);
     $AccountReference = 'OrderPayment';
     $TransactionDesc = 'STK Push';
-    $CallBackURL = 'https://yourdomain.com/callback.php'; // Update this
+    $CallBackURL = 'https://shrouded-meadow-45282-36291630ca1c.herokuapp.com/callback.php'; // Update this
 
     // Step 1: Get access token
     $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
