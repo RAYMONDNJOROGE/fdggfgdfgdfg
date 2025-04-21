@@ -1484,6 +1484,22 @@ function validatePhone2() {
     }
   }, 5000); // Check every 5 seconds (30 sec max)
 }
+
+
+async function checkLatestPayment() {
+  try {
+    const res = await fetch("latest_payment.php");
+    const data = await res.json();
+
+    console.log("Latest payment:", data);
+  } catch (err) {
+    console.error("Error fetching latest payment:", err);
+  }
+}
+setTimeout(() => {
+  checkLatestPayment();
+}, 5000);
+
                 </script>
    
 </body>
