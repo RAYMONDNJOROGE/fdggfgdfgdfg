@@ -1419,7 +1419,7 @@ async function handlePaymentSubmit(event) {
       openPopup('popup4');
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "Payment request sent successfully!"
+          ? "Payment request sent successfully!. Please Enter your M-pesa PIN"
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
@@ -1433,7 +1433,7 @@ async function handlePaymentSubmit(event) {
     setTimeout(() => {
       closePopup('popup3');
       openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
+      document.getElementById("stkStatusMessage").textContent = "Network error❌ . Please try again!";
 
       setTimeout(() => {
         closePopup('popup4');
