@@ -1378,29 +1378,31 @@ function openPopup(id) {
 //check if phone number is valid
 let selectedAmount = 0;
 
-function handlePayment(amount) {
-  selectedAmount = amount;        // Store the chosen amount
-  openPopup('popup1');            // Show phone number input popup
+function handlePayment(event, amount) {
+  event.preventDefault(); // Not strictly necessary here unless it's inside a <form>
+  selectedAmount = amount;
+  openPopup('popup1'); // Show the phone input popup
 }
-
-async function handlePaymentSubmit(event) {
-  event.preventDefault();
+// When form is submitted inside popup1
+async function handlePaymentSubmit(event, amount) {
+  event.preventDefault(); // Prevent form from refreshing
 
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
   if (!/^254\d{9}$/.test(phone)) {
-    message.textContent = "Use format 2547XXXXXXXX";
+    message.textContent = "Error! Use format 2547XXXXXXXX";
+    openPopup('popup2');
     return;
   }
 
-  openPopup('popup3'); // Show loading popup
+  openPopup('popup3'); // Show loading spinner
 
   try {
     const res = await fetch("pay.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+      body: `phone=${encodeURIComponent(phone)}&amount=${amount}&submit=1`
     });
 
     const data = await res.json();
@@ -1408,24 +1410,30 @@ async function handlePaymentSubmit(event) {
     setTimeout(() => {
       closePopup('popup3');
       openPopup('popup4');
-
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "STK Push sent! Check your phone."
+          ? "STK Push sent successfully. Check your phone!"
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
-        closePopup('popup4');
-        document.getElementById("phone").value = "";
+        closePopup('popup4'); // Automatically clears inputs in closePopup
       }, 5000);
     }, 10000);
+
   } catch (error) {
-    closePopup('popup3');
-    openPopup('popup4');
-    document.getElementById("stkStatusMessage").textContent = "Network error. Please try again.";
+    console.error("STK Push failed:", error);
+
+    setTimeout(() => {
+      closePopup('popup3');
+      openPopup('popup4');
+      document.getElementById("stkStatusMessage").textContent = "Network error. Please try again.";
+
+      setTimeout(() => {
+        closePopup('popup4');
+      }, 5000);
+    }, 10000);
   }
 }
-
 
   
   
