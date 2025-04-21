@@ -96,7 +96,7 @@
 
 <!--Payment notification proccessing-->
 <div id="popup3" class="popup">
-    <p style="font-weight: 600;" class="error">Kindly check your phone for the payment request</p>   
+    <p style="font-weight: 600;" class="error">Kindly check your phone for the payment requestya </p>   
     <div class="spinner"></div> <!-- Loading animation -->  
   </div>
 
@@ -1334,6 +1334,12 @@ body{
 
                 </style>
     
+
+
+<!--Java Script-->
+
+
+
                 <script>
                     //open pop ups
 function openPopup(id) {
@@ -1392,7 +1398,7 @@ async function handlePaymentSubmit(event) {
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
-  if (!/^254\d{9}$/.test(phone)) {
+  if (!/^254\d*$/.test(phone)) {
     message.textContent = "Error! Use format 2547XXXXXXXX";
     openPopup('popup2');
     return;
