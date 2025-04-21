@@ -18,7 +18,7 @@ if (isset($_POST['submit'])) {
     if (!preg_match('/^254\d{9}$/', $PartyA) || !in_array($Amount, $allowedAmounts)) {
         echo json_encode([
             'ResponseCode' => '1',
-            'errorMessage' => 'Invalid phone number or unauthorized amount'
+            'errorMessage' => 'Invalid phone number'
         ]);
         exit;
     }

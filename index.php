@@ -6,9 +6,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="captive.css">
-    <link rel="stylesheet" href="captive-popup.css">
-    <script src="captive.js"></script>
     <title>captiveportal</title>
 
 <body>
@@ -69,7 +66,7 @@
               <h1 class="h1-wrapper-pop">Enter your Safaricom Number to pay</h1>
            </div>
             <div>
-                <input placeholder="e.g 2547123456789" class="input-pop" id="phone"><br>
+                <input placeholder="e.g 2547123456789" class="input-pop" id="phone" required><br>
                     <button type="submit" class="button-pop" style="background-color: rgb(19, 94, 19);">
                         Pay
                     </button>
@@ -1381,31 +1378,29 @@ function openPopup(id) {
 //check if phone number is valid
 let selectedAmount = 0;
 
-function handlePayment(event, amount) {
-  event.preventDefault(); // Not strictly necessary here unless it's inside a <form>
-  selectedAmount = amount;
-  openPopup('popup1'); // Show the phone input popup
+function handlePayment(amount) {
+  selectedAmount = amount;        // Store the chosen amount
+  openPopup('popup1');            // Show phone number input popup
 }
-// When form is submitted inside popup1
-async function handlePaymentSubmit(event, amount) {
-  event.preventDefault(); // Prevent form from refreshing
+
+async function handlePaymentSubmit(event) {
+  event.preventDefault();
 
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
   if (!/^254\d{9}$/.test(phone)) {
-    message.textContent = "Error! Use format 2547XXXXXXXX";
-    openPopup('popup2');
+    message.textContent = "Use format 2547XXXXXXXX";
     return;
   }
 
-  openPopup('popup3'); // Show loading spinner
+  openPopup('popup3'); // Show loading popup
 
   try {
     const res = await fetch("pay.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${amount}&submit=1`
+      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
     });
 
     const data = await res.json();
@@ -1413,30 +1408,24 @@ async function handlePaymentSubmit(event, amount) {
     setTimeout(() => {
       closePopup('popup3');
       openPopup('popup4');
+
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "STK Push sent successfully. Check your phone!"
+          ? "STK Push sent! Check your phone."
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
-        closePopup('popup4'); // Automatically clears inputs in closePopup
-      }, 5000);
-    }, 10000);
-
-  } catch (error) {
-    console.error("STK Push failed:", error);
-
-    setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "Network error. Please try again.";
-
-      setTimeout(() => {
         closePopup('popup4');
+        document.getElementById("phone").value = "";
       }, 5000);
     }, 10000);
+  } catch (error) {
+    closePopup('popup3');
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent = "Network error. Please try again.";
   }
 }
+
 
   
   
