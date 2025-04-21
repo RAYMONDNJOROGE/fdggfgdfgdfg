@@ -96,7 +96,7 @@
 
 <!--Payment notification proccessing-->
 <div id="popup3" class="popup">
-    <p style="font-weight: 600;" class="error">Kindly check your phone for the payment requestya </p>   
+    <p style="font-weight: 600;" class="error">Kindly check your phone as you wait for the payment request </p>   
     <div class="spinner"></div> <!-- Loading animation -->  
   </div>
 
@@ -117,7 +117,7 @@
             <h2 class="h2-wrapper">Enter your Safaricom number to Reconnect</h2>
          </div>
           <div>
-            <input placeholder="254XXXXXXX" class="input1" id="phone2">
+            <input placeholder="254XXXXXXX" class="input1" id="phone2" required>
          </div>
         <div>
             <input type="submit" value="Reconnect" class="recon-button">
@@ -1399,7 +1399,7 @@ async function handlePaymentSubmit(event) {
   const message = document.getElementById("message");
 
   if (!/^254\d*$/.test(phone)) {
-    message.textContent = "Error! Use format 2547XXXXXXXX";
+    message.textContent = "Error! Use format 254XXXXXXXXX";
     openPopup('popup2');
     return;
   }
@@ -1420,13 +1420,13 @@ async function handlePaymentSubmit(event) {
       openPopup('popup4');
       document.getElementById("stkStatusMessage").textContent =
         data.ResponseCode === "0"
-          ? "STK Push sent successfully!"
+          ? "Prompt sent successfully!"
           : `Failed: ${data.errorMessage || "Unknown error"}`;
 
       setTimeout(() => {
         closePopup('popup4');
       }, 5000);
-    }, 10000);
+    }, 5000);
 
   } catch (error) {
     console.error("STK Push failed:", error);
@@ -1434,12 +1434,12 @@ async function handlePaymentSubmit(event) {
     setTimeout(() => {
       closePopup('popup3');
       openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "Network error. Please try again.";
+      document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
 
       setTimeout(() => {
         closePopup('popup4');
       }, 5000);
-    }, 10000);
+    }, 5000);
   }
 }
 
