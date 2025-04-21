@@ -96,7 +96,7 @@
 
 <!--Payment notification proccessing-->
         <div id="popup3" class="popup">
-        <p style="font-weight: 600; color: blue" class="error">Kindly Check your Phone as you Wait for the Payment Request </p>   
+        <p style="font-weight: 600; color: blue" class="error">Kindly Wait for the Payment Request on your Phone</p>   
         <div class="spinner"></div> <!-- Loading animation -->  
         </div>
 
@@ -1424,8 +1424,8 @@ async function handlePaymentSubmit(event) {
 
       setTimeout(() => {
         closePopup('popup4');
-      }, 4000);
-    }, 3000);
+      }, 3000);
+    }, 1000);
 
   } catch (error) {
     console.error("STK Push failed:", error);
@@ -1437,8 +1437,8 @@ async function handlePaymentSubmit(event) {
 
       setTimeout(() => {
         closePopup('popup4');
-      }, 3000);
-    }, 5000);
+      }, 4000);
+    }, 1000);
   }
 }
 
