@@ -105,6 +105,9 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
+        <div id="popup6" class="popup">
+        <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
+        </div> 
 
 
         
@@ -1421,14 +1424,14 @@ body{
 
                 setTimeout(() => {
                 closePopup('popup3');
-                openPopup('popup4');
+                openPopup('popup6');
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
                 ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN...."
                 : `Failed: ${data.errorMessage || "Unknown error❌"}`;
 
                 setTimeout(() => {
-                closePopup('popup4');
+                closePopup('popup6');
                 }, 5000);
                 }, 1000);
 
