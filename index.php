@@ -81,40 +81,30 @@
     
 <!--This is the payment pop-up end-->
 
-<!--This is the status pop-up-->
-        <div id="popup2" class="popup2">
-            <p id="message" class="error" style="font-weight: 600;"></p> 
-            <button onclick="closePopup('popup2')" class="button-pop" style="background-color: rgb(164, 4, 4)">Ok</button>
-        </div> 
-    
-<!--This is the status pop-up *2-->
-            <div id="popup2" class="popup2">
-            <p id="message" class="error" style="font-weight: 600;"></p> 
-            <button onclick="closePopup('popup2')" class="button-pop" style="background-color: rgb(164, 4, 4)">Ok</button>
-            </div>
+<!-- Generic Popup Container -->
+<div id="popupOverlay" class="popup-overlay hidden"></div>
 
+<!-- Error Input Popup -->
+<div id="popup2" class="popup-box">
+  <p id="message" class="popup-text red-text">❌ Error</p>
+</div>
 
-<!--Payment notification proccessing-->
-        <div id="popup3" class="popup">
-        <p style="font-weight: 600; color: blue" class="error">Kindly Wait as we Validate Your Number.....</p>   
-        <div class="spinner"></div> <!-- Loading animation -->  
-        </div>
+<!-- Loading Spinner Popup -->
+<div id="popup3" class="popup-box">
+  <div class="loader"></div>
+  <p class="popup-text">Sending STK Push...</p>
+</div>
 
-<!--STK message-->
-        <div id="popup4" class="popup">
-        <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
-        </div>
+<!-- STK Push Sent Popup -->
+<div id="popup4" class="popup-box">
+  <p id="stkStatusMessage" class="popup-text green-text"></p>
+</div>
 
-        <div id="popup5" class="popup">
-        <p id="failMessage" style="font-weight: 600;" class="error"></p>
-        </div>
-
-        
-        <div id="popup6" class="popup">
-        <p id="payments" style="font-weight: 600;" class="error"></p>
-        </div>
-
-
+<!-- Success / Failure Final Status -->
+<div id="popup5" class="popup-box">
+  <p id="payments" class="popup-text green-text"></p>
+  <p id="failMessage" class="popup-text red-text"></p>
+</div>
 
         
     <div class="wrapper">
@@ -1055,73 +1045,64 @@ body{
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
 
+.popup-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  display: none;
+  max-width: 90%;
+  text-align: center;
+}
 
+.popup-text {
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
 
-.overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
-    transition: opacity 0.3s ease;
-    z-index: 800;
+.green-text {
+  color: green;
 }
-.active {
-    display: block;
+
+.red-text {
+  color: red;
 }
-.popup{
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    visibility: hidden;
-    height: auto;
-    width: 350px;
-    justify-content: center;
-    text-align: center;
-    background-color: white;
-    transition: opacity 0.3s ease, transform 0.4s ease;
-    border-radius: 10px;
-    z-index: 900;
-    border: 5px rgb(4, 4, 156) solid;
+
+/* Spinner */
+.loader {
+  border: 4px solid #eee;
+  border-top: 4px solid #0baf1b;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  animation: spin 1s linear infinite;
 }
-.popup2{
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    visibility: hidden;
-    height: auto;
-    width: 350px;
-    justify-content: center;
-    text-align: center;
-    background-color: white;
-    transition: opacity 0.3s ease, transform 0.4s ease;
-    border-radius: 10px;
-    z-index: 1000;
-    border: 10px red solid;
-    padding: 10px;
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
-.spinner {
-    margin: 10px auto;
-    width: 40px;
-    height: 40px;
-    border: 5px solid rgba(0, 0, 255, 0.2);
-    border-top-color: #0000ff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-.active.overlay {
-    opacity: 1;
-    visibility: visible;
+
+/* Utility class to hide */
+.hidden {
+  display: none;
 }
+
 .active.popup {
     opacity: 1;
     visibility: visible;
@@ -1352,43 +1333,22 @@ body{
 
                 <script>
                     //open pop ups
-                function openPopup(id) {
-                document.getElementById("overlay").classList.add("active");
-  
-                // Activate the selected popup
-                const popupToOpen = document.getElementById(id);
-                if (popupToOpen) {
-                 popupToOpen.classList.add("active");
-                }
-                
-                }
-  
-                function closePopup(id) {
-                // Close the specific popup (if needed)
-                const popupToClose = document.getElementById(id);
-                if (popupToClose) {
-                popupToClose.classList.remove("active");
-                }
-  
-                // Close all other popups too
-                document.querySelectorAll(".popup, .popup2").forEach(popup => {
-                popup.classList.remove("active");
-                });
-  
-                // Hide overlay
-                document.getElementById("overlay").classList.remove("active");
-  
-                // Clear form input and messages
-                const phoneInput = document.getElementById("phone");
-                if (phoneInput) phoneInput.value = "";
-  
-                const message = document.getElementById("message");
-                if (message) message.textContent = "";
-  
-                const stkStatusMessage = document.getElementById("stkStatusMessage");
-                if (stkStatusMessage) stkStatusMessage.textContent = "";
-                }
+                    function openPopup(id) {
+  document.getElementById('popupOverlay').classList.remove('hidden');
+  document.getElementById(id).style.display = 'block';
+}
 
+function closePopup(id) {
+  document.getElementById('popupOverlay').classList.add('hidden');
+  document.getElementById(id).style.display = 'none';
+
+  // Clear previous messages (optional)
+  const msgElements = ['message', 'stkStatusMessage', 'payments', 'failMessage'];
+  msgElements.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+}
 
 // Function to initiate the payment process and show the phone input popup
 let selectedAmount = 0; // This should be set when a payment button is clicked
