@@ -1425,7 +1425,7 @@ body{
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
                 ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN...."
-                : `Failed: ${data.errorMessage || "Unknown error❌"}`;
+                : `Failed: ${data.errorMessage || "Invalid Number❌!"}`;
 
                 setTimeout(() => {
                 closePopup('popup4');
