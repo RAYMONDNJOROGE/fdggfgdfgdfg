@@ -1428,6 +1428,9 @@ setTimeout(async () => {
       openPopup('popup4'); // Show failure notice
       document.getElementById("stkStatusMessage").textContent =
         "STK sent but payment not confirmed yet.";
+        setTimeout(() => {
+        closePopup('popup4');
+      }, 3000);
     }
   } catch (error) {
     console.error("Error checking payment:", error);
