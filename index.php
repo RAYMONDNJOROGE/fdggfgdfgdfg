@@ -1460,13 +1460,13 @@ const pollInterval = setInterval(async () => {
       // user cancelled
       clearInterval(pollInterval);
       document.getElementById('failMessage').textContent = 'Payment Cancelled';
-      openPopup('popupFailed');
+      openPopup('popup4');
     }
     // else still pending: keep polling
   } catch (err) {
     clearInterval(pollInterval);
     document.getElementById('failMessage').textContent = 'Error checking status';
-    openPopup('popupFailed');
+    openPopup('popup4');
   }
 }, 5000);
 
