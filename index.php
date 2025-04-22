@@ -1394,43 +1394,32 @@ function openPopup(id) {
 let selectedAmount = 0;
 
 // Triggered by fixed-amount button
-function handlePayment(event, amount) {
-  event.preventDefault();
-  selectedAmount = amount; // Store selected amount
-  openPopup('popup1');     // Show phone input form
-}
-
-// Form submission from popup1
 async function handlePaymentSubmit(event) {
   event.preventDefault();
 
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
-  if (!/^254\d*$/.test(phone)) {
+  if (!/^254\d{9}$/.test(phone)) {
     message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
     return;
   }
 
-  openPopup('popup3'); // Loading spinner
-  
+  // Close phone input and show loading
+  closePopup('popup1');
+  openPopup('popup3'); // Processing...
 
   try {
-  const res = await fetch("pay.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
-  });
+    const res = await fetch("pay.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+    });
 
-  const data = await res.json();
-  console.log("STK Push Response:", data);
+    const data = await res.json();
+    console.log("STK Push Response:", data);
 
-  // Show loading popup while waiting for payment
-  openPopup('popup3');
-
-  // Show initial status message
-  setTimeout(() => {
     closePopup('popup3');
     openPopup('popup4');
     document.getElementById("stkStatusMessage").textContent =
@@ -1438,48 +1427,39 @@ async function handlePaymentSubmit(event) {
         ? "Payment Request Sent Successfully! Please Enter your M-PESA PIN"
         : `Failed: ${data.errorMessage || "Unknown error"}`;
 
-    setTimeout(() => {
-      closePopup('popup4');
-    }, 3000);
-  }, 1000);
+    setTimeout(() => closePopup('popup4'), 3000);
 
-  // Start polling latest_payment.php every 5s
-  if (data.ResponseCode === "0") {
-    const pollInterval = setInterval(async () => {
-      const paymentRes = await fetch("latest_payment.php");
-      const paymentData = await paymentRes.json();
+    // Start polling latest_payment.php if STK Push was sent successfully
+    if (data.ResponseCode === "0") {
+      const pollInterval = setInterval(async () => {
+        const paymentRes = await fetch("latest_payment.php");
+        const paymentData = await paymentRes.json();
 
-      if (paymentData.phone && paymentData.amount) {
-        clearInterval(pollInterval); // Stop polling when payment is found
+        if (paymentData.phone && paymentData.amount) {
+          clearInterval(pollInterval); // Stop polling when payment is confirmed
 
-        // Show success popup
-        document.getElementById("payments").textContent =
-          `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
-        openPopup("popupSuccess");
+          // Show success popup
+          document.getElementById("payments").textContent =
+            `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
+          openPopup("popupSuccess");
 
-        setTimeout(() => {
-          closePopup("popupSuccess");
-        }, 5000);
-      }
-    }, 5000); // check every 5 seconds
-  }
+          setTimeout(() => closePopup("popupSuccess"), 5000);
+        }
+      }, 5000); // Poll every 5 seconds
+    }
 
-} catch (error) {
-  console.error("STK Push failed:", error);
+  } catch (error) {
+    console.error("STK Push failed:", error);
 
-  setTimeout(() => {
     closePopup('popup3');
     openPopup('popup4');
     document.getElementById("stkStatusMessage").textContent =
       "NETWORK ERROR❌ . Please Try Again!";
 
-    setTimeout(() => {
-      closePopup('popup4');
-    }, 4000);
-  }, 1000);
+    setTimeout(() => closePopup('popup4'), 4000);
+  }
 }
 
-  
   
 //check if phone number is valid*2
 
@@ -1497,7 +1477,8 @@ function validatePhone2() {
       return false;
     }
   }
+}
                 </script>
-   
+
 </body>
 </html>
