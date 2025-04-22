@@ -105,11 +105,7 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
-<!--payment ststus-->
-        <div id="popup5" class="popup" style="display: none;">
-         <p id="paymentMessage"></p>
-        </div>
-
+        
     <div class="wrapper">
     <form autocomplete="off" onsubmit="return validatePhone2()">
     <div>
@@ -1381,13 +1377,6 @@ function openPopup(id) {
     if (stkStatusMessage) stkStatusMessage.textContent = "";
   }
 
-  function openPopup(id) {
-  document.getElementById(id).style.display = "block";
-}
-
-function closePopup(id) {
-  document.getElementById(id).style.display = "none";
-}
 
 
 
@@ -1476,49 +1465,6 @@ function validatePhone2() {
   }
 
   //check payment status
-  function pollPaymentStatus(checkoutRequestID) {
-  let attempts = 0;
-
-  const interval = setInterval(async () => {
-    attempts++;
-    console.log(`Checking payment status (attempt ${attempts})...`);
-
-    const res = await fetch("check_payment_status.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `checkoutRequestID=${checkoutRequestID}`
-    });
-
-    const data = await res.json();
-    console.log("Payment Status Response:", data);
-
-    const status = data.paymentStatus;
-
-    if (status === 'success' || status === 'failed' || attempts >= 6) {
-      clearInterval(interval);
-      console.log("✅ Final Payment Status:", status.toUpperCase());
-
-      // Set popup message
-      const messageEl = document.getElementById("paymentMessage");
-      if (status === 'success') {
-        messageEl.textContent = "✅ Payment Successful!";
-      } else if (status === 'failed') {
-        messageEl.textContent = "❌ Payment Failed!";
-      } else {
-        messageEl.textContent = "⏰ Payment Timeout. Please try again.";
-      }
-
-      // Show popup
-      openPopup("popup5");
-
-      // Auto-close after 5 seconds
-      setTimeout(() => {
-        closePopup("popup5");
-      }, 5000);
-    }
-  }, 5000); // Check every 5 seconds
-}
-
                 </script>
    
 </body>
