@@ -1457,6 +1457,7 @@ const checkoutID = data.CheckoutRequestID;
 
         if (stat.ResultCode === 0) {
           // ✅ success
+          console.log('✅ Detected successful payment in poll');
           clearInterval(pollInterval);
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
@@ -1465,6 +1466,7 @@ const checkoutID = data.CheckoutRequestID;
 
         } else if (stat.ResultCode === 1032) {
           // ❌ cancelled
+          console.log('Payment Cancelled');
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "Payment Cancelled";
           openPopup("popupFailed");
