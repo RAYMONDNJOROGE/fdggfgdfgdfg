@@ -1337,136 +1337,135 @@ body{
     
 
 
-<!--Java Script-->
+                                <!--Java Script-->
 
 
 
                 <script>
                     //open pop ups
-function openPopup(id) {
-    document.getElementById("overlay").classList.add("active");
+                function openPopup(id) {
+                document.getElementById("overlay").classList.add("active");
   
-    // Activate the selected popup
-    const popupToOpen = document.getElementById(id);
-    if (popupToOpen) {
-      popupToOpen.classList.add("active");
-    }
-  }
+                // Activate the selected popup
+                const popupToOpen = document.getElementById(id);
+                if (popupToOpen) {
+                 popupToOpen.classList.add("active");
+                }
+                
+                }
   
-  function closePopup(id) {
-    // Close the specific popup (if needed)
-    const popupToClose = document.getElementById(id);
-    if (popupToClose) {
-      popupToClose.classList.remove("active");
-    }
+                function closePopup(id) {
+                // Close the specific popup (if needed)
+                const popupToClose = document.getElementById(id);
+                if (popupToClose) {
+                popupToClose.classList.remove("active");
+                }
   
-    // Close all other popups too
-    document.querySelectorAll(".popup, .popup2").forEach(popup => {
-      popup.classList.remove("active");
-    });
+                // Close all other popups too
+                document.querySelectorAll(".popup, .popup2").forEach(popup => {
+                popup.classList.remove("active");
+                });
   
-    // Hide overlay
-    document.getElementById("overlay").classList.remove("active");
+                // Hide overlay
+                document.getElementById("overlay").classList.remove("active");
   
-    // Clear form input and messages
-    const phoneInput = document.getElementById("phone");
-    if (phoneInput) phoneInput.value = "";
+                // Clear form input and messages
+                const phoneInput = document.getElementById("phone");
+                if (phoneInput) phoneInput.value = "";
   
-    const message = document.getElementById("message");
-    if (message) message.textContent = "";
+                const message = document.getElementById("message");
+                if (message) message.textContent = "";
   
-    const stkStatusMessage = document.getElementById("stkStatusMessage");
-    if (stkStatusMessage) stkStatusMessage.textContent = "";
-  }
+                const stkStatusMessage = document.getElementById("stkStatusMessage");
+                if (stkStatusMessage) stkStatusMessage.textContent = "";
+                }
 
 
 
 
-//check if phone number is valid
-let selectedAmount = 0;
+                //check if phone number is valid
+                let selectedAmount = 0;
 
-// Triggered by fixed-amount button
-function handlePayment(event, amount) {
-  event.preventDefault();
-  selectedAmount = amount; // Store selected amount
-  openPopup('popup1');     // Show phone input form
-}
+                // Triggered by fixed-amount button
+                function handlePayment(event, amount) {
+                event.preventDefault();
+                selectedAmount = amount; // Store selected amount
+                openPopup('popup1');     // Show phone input form
+                }
 
-// Form submission from popup1
-async function handlePaymentSubmit(event) {
-  event.preventDefault();
+                // Form submission from popup1
+                async function handlePaymentSubmit(event) {
+                event.preventDefault();
 
-  const phone = document.getElementById("phone").value.trim();
-  const message = document.getElementById("message");
+                const phone = document.getElementById("phone").value.trim();
+                const message = document.getElementById("message");
 
-  if (!/^254\d*$/.test(phone)) {
-    message.textContent = "Error! Use Format 254XXXXXXXXX";
-    openPopup('popup2');
-    return;
-  }
+                if (!/^254\d*$/.test(phone)) {
+                message.textContent = "❌Error! Use Format 254XXXXXXXXX";
+                openPopup('popup2');
+                return;
+                }
 
-  openPopup('popup3'); // Loading spinner
+                openPopup('popup3'); // Loading spinner
   
 
-  try {
-    const res = await fetch("pay.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
-    });
+                try {
+                const res = await fetch("pay.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+                });
 
-    const data = await res.json();
-    console.log("STK Push Response:", data);
+                const data = await res.json();
 
 
-    setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent =
-        data.ResponseCode === "0"
-          ? "Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
-          : `Failed: ${data.errorMessage || "Unknown error"}`;
+                setTimeout(() => {
+                closePopup('popup3');
+                openPopup('popup4');
+                document.getElementById("stkStatusMessage").textContent =
+                data.ResponseCode === "0"
+                ? "✅Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
+                : `Failed: ${data.errorMessage || "Unknown error"}`;
 
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 3000);
-    }, 1000);
+                setTimeout(() => {
+                closePopup('popup4');
+                }, 3000);
+                }, 1000);
 
-  } catch (error) {
-    console.error("STK Push failed:", error);
+                } catch (error) {
+                console.error("STK Push failed❌:", error);
 
-    setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "NETWORK ERROR❌ . Please Try Again!";
+                setTimeout(() => {
+                closePopup('popup3');
+                openPopup('popup4');
+                document.getElementById("stkStatusMessage").textContent = "❌Network Error. Please Try Again!";
 
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 4000);
-    }, 1000);
-  }
-}
+                setTimeout(() => {
+                closePopup('popup4');
+                }, 4000);
+                }, 1000);
+                }
+                }
 
 
   
   
-//check if phone number is valid*2
-
-function validatePhone2() {
-    const phone = document.getElementById("phone2").value.trim();
-    const message = document.getElementById("message");
+                //check if phone number is valid*2
+                function validatePhone2() {
+                const phone = document.getElementById("phone2").value.trim();
+                const message = document.getElementById("message");
   
-    if (/^254\d{9}$/.test(phone)) {
-      // ✅ Valid number: don't show popup2, allow form to submit
-      return true;
-    } else {
-      // ❌ Invalid number: show message in popup2 and prevent form submit
-      message.textContent = "Error! Please Enter your phone number in the Format 254XXXXXXXXX";
-      openPopup('popup2');
-      return false;
-    }
-  }
-                </script>
+                if (/^254\d{9}$/.test(phone)) {
+                // ✅ Valid number: don't show popup2, allow form to submit
+                return true;
+                } else {
+                // ❌ Invalid number: show message in popup2 and prevent form submit
+                message.textContent = "❌Error! Please Enter your Phone Number in the Format 254XXXXXXXXX";
+                openPopup('popup2');
+                return false;
+                }
+                }
+</script>
    
 </body>
 </html>
