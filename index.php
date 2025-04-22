@@ -1394,7 +1394,7 @@ function openPopup(id) {
 let selectedAmount = 0;
 
 // Triggered by fixed-amount button
-async function handlePaymentSubmit(event, amount) {
+async function handlePayment(event, amount) {
   event.preventDefault();
   selectedAmount = amount;
 
