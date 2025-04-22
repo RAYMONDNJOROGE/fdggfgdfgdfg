@@ -61,7 +61,7 @@
 
 <!--This is the payment pop-up-->
     <div class="popup" id="popup1">
-        <form autocomplete="off" onsubmit="handlePaymentSubmit(event)">
+        <form autocomplete="off" onsubmit="return handlePaymentSubmit(event)">
            <div>
               <h1 class="h1-wrapper-pop">Enter your Safaricom Number to pay</h1>
            </div>
@@ -1394,8 +1394,9 @@ function openPopup(id) {
 let selectedAmount = 0;
 
 // Triggered by fixed-amount button
-async function handlePaymentSubmit(event) {
+async function handlePaymentSubmit(event, amount) {
   event.preventDefault();
+  selectedAmount = amount;
 
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
