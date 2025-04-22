@@ -1461,14 +1461,14 @@ const checkoutID = data.CheckoutRequestID;
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
           openPopup('popupSuccess');
-          setTimeout(() => closePopup('popupSuccess'), 5000);
+          setTimeout(() => closePopup('popupSuccess'), 3000);
 
         } else if (stat.ResultCode === 1032) {
           // ❌ cancelled
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "Payment Cancelled";
           openPopup("popupFailed");
-          setTimeout(() => closePopup("popupFailed"), 5000);
+          setTimeout(() => closePopup("popupFailed"), 3000);
         }
         // otherwise still pending
 
@@ -1476,7 +1476,7 @@ const checkoutID = data.CheckoutRequestID;
         clearInterval(pollInterval);
         document.getElementById("failMessage").textContent = "Error checking status";
         openPopup("popupFailed");
-        setTimeout(() => closePopup("popupFailed"), 5000);
+        setTimeout(() => closePopup("popupFailed"), 3000);
       }
     }, 1000);
 
@@ -1485,7 +1485,7 @@ const checkoutID = data.CheckoutRequestID;
     closePopup('popup3');
     document.getElementById("failMessage").textContent = "Network error, please try again.";
     openPopup("popupFailed");
-    setTimeout(() => closePopup("popupFailed"), 5000);
+    setTimeout(() => closePopup("popupFailed"), 3000);
   }
 }
 
