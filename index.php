@@ -1478,7 +1478,7 @@ function openPopup(id) {
         openPopup("popupFailed");
         setTimeout(() => closePopup("popupFailed"), 5000);
       }
-    }, 5000);
+    }, 1000);
 
   } catch (error) {
     // STK Push network error
