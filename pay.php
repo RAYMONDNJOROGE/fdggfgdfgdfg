@@ -15,7 +15,7 @@ if (isset($_POST['submit'])) {
     $Amount = (int) $_POST['amount'];
 
     if (!preg_match('/^254\d{9}$/', $PartyA) || !in_array($Amount, $allowedAmounts)) {
-        echo json_encode(['ResponseCode' => '1', 'errorMessage' => '❌Invalid Phone Number']);
+        echo json_encode(['ResponseCode' => '1', 'errorMessage' => '❌ Invalid Phone Number']);
         exit;
     }
 
@@ -35,7 +35,7 @@ if (isset($_POST['submit'])) {
 
     $access_token = json_decode($result)->access_token ?? null;
     if (!$access_token) {
-        echo json_encode(['ResponseCode' => '1', 'errorMessage' => '❌Failed to Get Access Token']);
+        echo json_encode(['ResponseCode' => '1', 'errorMessage' => '❌ Failed to Get Access Token']);
         exit;
     }
 
@@ -73,7 +73,7 @@ if (isset($_POST['submit'])) {
     header('Content-Type: application/json');
     echo json_encode([
         'ResponseCode' => $responseData['ResponseCode'] ?? '1',
-        'CustomerMessage' => $responseData['CustomerMessage'] ?? '❌Failed to Initiate STK Push',
+        'CustomerMessage' => $responseData['CustomerMessage'] ?? '❌ Failed to Initiate STK Push',
         'CheckoutRequestID' => $responseData['CheckoutRequestID'] ?? null
     ]);
 }
