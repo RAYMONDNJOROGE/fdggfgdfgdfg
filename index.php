@@ -1416,79 +1416,59 @@ async function handlePaymentSubmit(event) {
   openPopup('popup3'); // Loading spinner
   
 
+  async function initiatePayment(phone, amount) {
   try {
     const res = await fetch("pay.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+      body: `phone=${encodeURIComponent(phone)}&amount=${amount}&submit=1`
     });
 
     const data = await res.json();
     console.log("STK Push Response:", data);
 
-
-    setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent =
-        data.ResponseCode === "0"
-          ? "Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
-          : `Failed: ${data.errorMessage || "Unknown error"}`;
-
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 3000);
-    }, 1000);
-
+    if (data.ResponseCode === "0") {
+      const checkoutRequestID = data.CheckoutRequestID;
+      pollPaymentStatus(checkoutRequestID);
+    } else {
+      alert("STK Push Failed");
+    }
   } catch (error) {
-    console.error("STK Push failed:", error);
-
-    setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "NETWORK ERROR❌ . Please Try Again!";
-
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 4000);
-    }, 1000);
+    console.error("Error initiating payment:", error);
   }
 }
 
-function pollForPayment(phone, amount) {
-  const startTime = Date.now();
-  const maxDuration = 60000; // 60 seconds
+function pollPaymentStatus(checkoutRequestID) {
+  let attempts = 0;
+  const maxAttempts = 12; // 1 minute total
   const interval = setInterval(async () => {
-    const elapsed = Date.now() - startTime;
+    attempts++;
+    console.log(`🔁 Polling attempt ${attempts}`);
 
-    try {
-      const response = await fetch('latest_payment.php');
-      const data = await response.json();
-      console.log("🔁 Checking Payment:", data);
+    const res = await fetch("check_payment_status.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `checkoutRequestID=${checkoutRequestID}`
+    });
 
-      if (data.phone === phone && data.amount == amount) {
-        clearInterval(interval);
-        document.getElementById('payments').textContent =
-          `✅ Payment of KES ${data.amount} received from ${data.phone}`;
-        openPopup('popupSuccess');
-        setTimeout(() => closePopup('popupSuccess'), 5000);
-      } else if (elapsed >= maxDuration) {
-        clearInterval(interval);
-        document.getElementById("stkStatusMessage").textContent = "❌ Payment not confirmed in time";
-        openPopup('popup4');
-        setTimeout(() => closePopup('popup4'), 5000);
-      }
-    } catch (error) {
+    const data = await res.json();
+
+    if (data.paymentStatus === 'success') {
       clearInterval(interval);
-      console.error("❌ Polling Error:", error);
-      document.getElementById("stkStatusMessage").textContent = "❌ Error checking payment status";
+      console.log("✅ Payment confirmed:", data);
+      document.getElementById('payments').textContent =
+        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+      openPopup('popupSuccess');
+      setTimeout(() => closePopup('popupSuccess'), 5000);
+    } else if (attempts >= maxAttempts) {
+      clearInterval(interval);
+      document.getElementById('stkStatusMessage').textContent = "❌ Payment Timeout or Failed";
       openPopup('popup4');
       setTimeout(() => closePopup('popup4'), 5000);
     }
-  }, 5000); // every 5s
+  }, 5000); // check every 5s
 }
 
-  
 //check if phone number is valid*2
 
 function validatePhone2() {

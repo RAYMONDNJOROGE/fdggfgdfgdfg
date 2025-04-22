@@ -1,36 +1,34 @@
 <?php
 $callbackJSON = file_get_contents('php://input');
 $callbackData = json_decode($callbackJSON, true);
-
 $filename = 'payments.json';
-$paymentDetails = [];
 
-$resultCode = $callbackData['Body']['stkCallback']['ResultCode'];
+if (isset($callbackData['Body']['stkCallback'])) {
+    $stkCallback = $callbackData['Body']['stkCallback'];
+    $resultCode = $stkCallback['ResultCode'];
+    $checkoutRequestID = $stkCallback['CheckoutRequestID'];
 
-if ($resultCode == 0) {
-    $metadata = $callbackData['Body']['stkCallback']['CallbackMetadata']['Item'];
+    if ($resultCode == 0) {
+        $metadata = $stkCallback['CallbackMetadata']['Item'];
+        $paymentDetails = [
+            'CheckoutRequestID' => $checkoutRequestID,
+            'ResultCode' => $resultCode,
+            'ResultDesc' => $stkCallback['ResultDesc'],
+            'timestamp' => date('Y-m-d H:i:s')
+        ];
 
-    $amount = 0;
-    $phone = '';
-    
-    foreach ($metadata as $item) {
-        if ($item['Name'] == 'Amount') {
-            $amount = $item['Value'];
+        foreach ($metadata as $item) {
+            if ($item['Name'] == 'Amount') {
+                $paymentDetails['amount'] = $item['Value'];
+            } elseif ($item['Name'] == 'PhoneNumber') {
+                $paymentDetails['phone'] = $item['Value'];
+            }
         }
-        if ($item['Name'] == 'PhoneNumber') {
-            $phone = $item['Value'];
-        }
+
+        $payments = file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
+        $payments[$checkoutRequestID] = $paymentDetails;
+
+        file_put_contents($filename, json_encode($payments, JSON_PRETTY_PRINT));
     }
-
-    $paymentDetails = [
-        'phone' => $phone,
-        'amount' => $amount,
-        'timestamp' => date('Y-m-d H:i:s')
-    ];
-
-    // Save to file
-    $existingPayments = file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
-    $existingPayments[] = $paymentDetails;
-    file_put_contents($filename, json_encode($existingPayments, JSON_PRETTY_PRINT));
 }
 ?>
