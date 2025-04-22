@@ -109,13 +109,13 @@
             <!-- Popup container -->
 <!-- Success Popup -->
 <div id="popupSuccess" class="popup">
-    <p id="failMessage" class="error"></p>
+    <p id="successMessage" class="error">Payment Completed</p>
 </div>
 
 
 <!-- Failed Popup -->
 <div id="popupFailed" class="popup">
-    <p id="failMessage" class="error"></p>
+    <p id="failMessage" class="error">Incomplete Payment</p>
 </div>
 
 
@@ -1463,14 +1463,14 @@ function openPopup(id) {
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
           openPopup('popupSuccess');
-          setTimeout(() => closePopup('popupSuccess'), 5000);
+          setTimeout(() => closePopup('popupSuccess'), 3000);
 
         } else if (stat.ResultCode === 1032) {
           // ❌ user cancelled
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "Payment Cancelled";
           openPopup("popupFailed");
-          setTimeout(() => closePopup("popupFailed"), 5000);
+          setTimeout(() => closePopup("popupFailed"), 3000);
         }
         // else still pending — do nothing
       } catch (err) {
