@@ -1449,7 +1449,7 @@ async function handlePaymentSubmit(event) {
       closePopup('popup4');
     }, 4000);
   }
-}, 15000);
+}, 1000);
 
 
 
