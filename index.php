@@ -1438,30 +1438,38 @@ function openPopup(id) {
       "Payment Request Sent. Please Enter your M-PESA PIN.";
     setTimeout(() => closePopup('popup4'), 3000);
 
-    // Now start polling for confirmation every 1s
-    const pollInterval = setInterval(async () => {
-      try {
-        const paymentRes = await fetch("latest_payment.php");
-        const paymentData = await paymentRes.json();
+    // after successful STK push:
+const checkoutID = data.CheckoutRequestID;
+const pollInterval = setInterval(async () => {
+  try {
+    const res = await fetch('check_status.php', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+      body:`CheckoutRequestID=${checkoutID}`
+    });
+    const stat = await res.json();
+    console.log('STK Query:', stat);
 
-        if (
-          paymentData.phone === phone &&
-          Number(paymentData.amount) === selectedAmount
-        ) {
-          clearInterval(pollInterval);
-          document.getElementById("payments").textContent =
-            `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
-          openPopup("popupSuccess");
-          setTimeout(() => closePopup("popupSuccess"), 3000);
-        }
-      } catch (err) {
-        clearInterval(pollInterval);
-        document.getElementById("failMessage").textContent =
-          "Error checking payment status";
-        openPopup("popup4");
-        setTimeout(() => closePopup("popup4"), 3000);
-      }
-    }, 1000);
+    if (stat.ResultCode === 0) {
+      // success
+      clearInterval(pollInterval);
+      // then fetch latest_payment.php or directly show success
+      openPopup('popupSuccess');
+    }
+    else if (stat.ResultCode === 1032) {
+      // user cancelled
+      clearInterval(pollInterval);
+      document.getElementById('failMessage').textContent = 'Payment Cancelled';
+      openPopup('popupFailed');
+    }
+    // else still pending: keep polling
+  } catch (err) {
+    clearInterval(pollInterval);
+    document.getElementById('failMessage').textContent = 'Error checking status';
+    openPopup('popupFailed');
+  }
+}, 5000);
+
 
   } catch (error) {
     console.error("STK Push network error:", error);
