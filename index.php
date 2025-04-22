@@ -107,13 +107,13 @@
 
 <!-- Success Popup -->
 <div id="popupSuccess" class="popup">
-    <p id="paymnets" class="error">Payment Completed</p>
+    <p id="paymnets" class="error"></p>
 </div>
 
 
 <!-- Failed Popup -->
 <div id="popupFailed" class="popup">
-    <p id="failMessage" class="error">Incomplete Payment</p>
+    <p id="failMessage" class="error"></p>
 </div>
 
 
