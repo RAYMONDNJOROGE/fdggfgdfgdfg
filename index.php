@@ -1401,12 +1401,12 @@ function handlePayment(event, amount) {
 }
 
 // Form submission from popup1
-async function handlePaymentSubmit(event){
+async function handlePaymentSubmit(event) {
   event.preventDefault();
 
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
-}
+
   if (!/^254\d*$/.test(phone)) {
     message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
@@ -1416,59 +1416,81 @@ async function handlePaymentSubmit(event){
   openPopup('popup3'); // Loading spinner
   
 
-  async function handlePayment(phone, amount) {
   try {
     const res = await fetch("pay.php", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${amount}&submit=1`
+      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
     });
 
     const data = await res.json();
     console.log("STK Push Response:", data);
 
-    if (data.ResponseCode === "0") {
-      const checkoutRequestID = data.CheckoutRequestID;
-      pollPaymentStatus(checkoutRequestID);
-    } else {
-      alert("STK Push Failed");
-    }
+
+    setTimeout(() => {
+      closePopup('popup3');
+      openPopup('popup4');
+      document.getElementById("stkStatusMessage").textContent =
+        data.ResponseCode === "0"
+          ? "Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
+          : `Failed: ${data.errorMessage || "Unknown error"}`;
+
+      setTimeout(() => {
+        closePopup('popup4');
+      }, 3000);
+    }, 1000);
+
   } catch (error) {
-    console.error("Error initiating payment:", error);
+    console.error("STK Push failed:", error);
+
+    setTimeout(() => {
+      closePopup('popup3');
+      openPopup('popup4');
+      document.getElementById("stkStatusMessage").textContent = "NETWORK ERROR❌ . Please Try Again!";
+
+      setTimeout(() => {
+        closePopup('popup4');
+      }, 4000);
+    }, 1000);
   }
 }
 
-function pollPaymentStatus(checkoutRequestID) {
-  let attempts = 0;
-  const maxAttempts = 12; // 1 minute total
-  const interval = setInterval(async () => {
-    attempts++;
-    console.log(`🔁 Polling attempt ${attempts}`);
+const startTime = Date.now();
+const maxDuration = 60 * 1000; // 60 seconds
 
-    const res = await fetch("check_payment_status.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `checkoutRequestID=${checkoutRequestID}`
-    });
+const interval = setInterval(async () => {
+  const elapsed = Date.now() - startTime;
+  console.log(`🔁 Checking payment... (${Math.floor(elapsed / 1000)}s)`);
 
-    const data = await res.json();
+  try {
+    const response = await fetch('latest_payment.php');
+    const data = await response.json();
 
-    if (data.paymentStatus === 'success') {
-      clearInterval(interval);
+    if (data.phone && data.amount) {
       console.log("✅ Payment confirmed:", data);
       document.getElementById('payments').textContent =
         `✅ Payment of KES ${data.amount} received from ${data.phone}`;
       openPopup('popupSuccess');
       setTimeout(() => closePopup('popupSuccess'), 5000);
-    } else if (attempts >= maxAttempts) {
       clearInterval(interval);
-      document.getElementById('stkStatusMessage').textContent = "❌ Payment Timeout or Failed";
+    } else if (elapsed >= maxDuration) {
+      console.log("⏱️ Timeout: Payment not received.");
+      document.getElementById("stkStatusMessage").textContent = "❌ Payment not confirmed";
       openPopup('popup4');
       setTimeout(() => closePopup('popup4'), 5000);
+      clearInterval(interval);
     }
-  }, 5000); // check every 5s
-}
+  } catch (error) {
+    console.error("❌ Error checking payment:", error);
+    document.getElementById("stkStatusMessage").textContent = "❌ Error checking payment status";
+    openPopup('popup4');
+    setTimeout(() => closePopup('popup4'), 5000);
+    clearInterval(interval);
+  }
+}, 5000); // poll every 5 seconds
 
+  
+  
 //check if phone number is valid*2
 
 function validatePhone2() {
