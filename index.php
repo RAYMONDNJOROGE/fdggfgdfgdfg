@@ -1430,7 +1430,7 @@ setTimeout(async () => {
         "STK sent but payment not confirmed yet.";
         setTimeout(() => {
         closePopup('popup4');
-      }, 3000);
+      }, 4000);
     }
   } catch (error) {
     console.error("Error checking payment:", error);
