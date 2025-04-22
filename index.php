@@ -1389,27 +1389,88 @@ function openPopup(id) {
 
 
 
-
-//check if phone number is valid
-let selectedAmount = 0;
-
 // Triggered by fixed-amount button
-async function handlePayment(event, amount) {
-  event.preventDefault();
-  selectedAmount = amount;
 
-  const phone = document.getElementById("phone").value.trim();
-  const message = document.getElementById("message");
+  let selectedAmount = null;
 
-  if (!/^254\d{9}$/.test(phone)) {
-    message.textContent = "Error! Use Format 254XXXXXXXXX";
-    openPopup('popup2');
-    return;
+  // Triggered by fixed-amount button (e.g., "Connect")
+  function handlePayment(event, amount) {
+    event.preventDefault();
+    selectedAmount = amount;
+    openPopup('popup1'); // Show phone number input
   }
 
-  // Close phone input and show loading
-  closePopup('popup1');
-  openPopup('popup3'); // Processing...
+  // Submits the payment after phone number is entered
+  async function handlePaymentSubmit(event) {
+    event.preventDefault();
+
+    const phone = document.getElementById("phone").value.trim();
+    const message = document.getElementById("message");
+
+    if (!/^254\d{9}$/.test(phone)) {
+      message.textContent = "Error! Use Format 254XXXXXXXXX";
+      openPopup('popup2');
+      return;
+    }
+
+    // Close phone input and show loading
+    closePopup('popup1');
+    openPopup('popup3'); // Show processing popup
+
+    try {
+      const res = await fetch("pay.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+      });
+
+      const data = await res.json();
+      console.log("STK Push Response:", data);
+
+      closePopup('popup3');
+      openPopup('popup4');
+      document.getElementById("stkStatusMessage").textContent =
+        data.ResponseCode === "0"
+          ? "Payment Request Sent Successfully! Please Enter your M-PESA PIN"
+          : `Failed: ${data.errorMessage || "Unknown error"}`;
+
+      setTimeout(() => closePopup('popup4'), 3000);
+
+      // Start polling latest_payment.php if STK Push was successful
+      if (data.ResponseCode === "0") {
+        const pollInterval = setInterval(async () => {
+          try {
+            const paymentRes = await fetch("latest_payment.php");
+            const paymentData = await paymentRes.json();
+
+            if (
+              paymentData.phone === phone &&
+              Number(paymentData.amount) === selectedAmount
+            ) {
+              clearInterval(pollInterval); // Stop polling
+
+              document.getElementById("payments").textContent =
+                `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
+              openPopup("popupSuccess");
+
+              setTimeout(() => closePopup("popupSuccess"), 5000);
+            }
+          } catch (err) {
+            console.error("Polling error:", err);
+          }
+        }, 5000); // Poll every 5 seconds
+      }
+
+    } catch (error) {
+      console.error("STK Push failed:", error);
+      closePopup('popup3');
+      openPopup('popup4');
+      document.getElementById("stkStatusMessage").textContent =
+        "NETWORK ERROR❌ . Please Try Again!";
+      setTimeout(() => closePopup('popup4'), 4000);
+    }
+  }
+
 
   try {
     const res = await fetch("pay.php", {
@@ -1459,7 +1520,7 @@ async function handlePayment(event, amount) {
 
     setTimeout(() => closePopup('popup4'), 4000);
   }
-}
+
 
   
 //check if phone number is valid*2
