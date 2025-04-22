@@ -1424,7 +1424,7 @@ body{
                 openPopup('popup4');
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
-                ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN...."
+                ? "✅Number Verified Successfully!. Please Check your Phone and Enter your M-pesa PIN........"
                 : `Failed: ${data.errorMessage || "Invalid Number❌!"}`;
 
                 setTimeout(() => {
