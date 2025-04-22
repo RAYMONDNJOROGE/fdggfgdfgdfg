@@ -107,16 +107,16 @@
 
 <!--status poups-->
         <!-- ✅ Payment Success Popup -->
-<div id="popup5" class="popup">
-  <div class="error">
+<div id="popupSuccess" class="popup-success">
+  <div class="popup-box">
     <h2>✅ Payment Successful</h2>
     <p id="payments"></p>
   </div>
 </div>
 
 <!-- ❌ Payment Failed Popup -->
-<div id="popup5" class="popup">
-  <div class="error">
+<div id="popupFailed" class="popup-failed">
+  <div class="popup-box">
     <h2>❌ Payment Failed</h2>
     <p id="failMessage"></p>
   </div>
@@ -1062,6 +1062,48 @@ body{
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
+/* ✅ Success Popup */
+.popup-success {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #e6ffed;
+  color: #155724;
+  border: 2px solid #28a745;
+  border-radius: 12px;
+  padding: 20px;
+  display: none;
+  z-index: 1001;
+}
+
+.popup-success.active {
+  display: block;
+}
+
+/* ❌ Failed Popup */
+.popup-failed {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffe6e6;
+  color: #721c24;
+  border: 2px solid #dc3545;
+  border-radius: 12px;
+  padding: 20px;
+  display: none;
+  z-index: 1001;
+}
+
+.popup-failed.active {
+  display: block;
+}
+
+/* Optional inner box style */
+.popup-box {
+  text-align: center;
+  font-family: sans-serif;
+}
+
 
 .overlay {
     position: fixed;
@@ -1465,15 +1507,15 @@ body{
           clearInterval(pollInterval);
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
-          openPopup('popup5');
-          return setTimeout(() => closePopup('popup5'), 4000);
+          openPopup('popupSuccess');
+          return setTimeout(() => closePopup('popupSuccess'), 4000);
 
         } else if (stat.ResultCode === 1032) {
           // ❌ Payment Cancelled
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "❌ Payment Cancelled by User";
-          openPopup("popup5");
-          return setTimeout(() => closePopup("popup5"), 4000);
+          openPopup("popupFailed");
+          return setTimeout(() => closePopup("popupFailed"), 4000);
         }
 
         // Still pending — do nothing yet
@@ -1481,16 +1523,16 @@ body{
       } catch (err) {
         clearInterval(pollInterval);
         document.getElementById("failMessage").textContent = "❌ Network or API error while checking payment";
-        openPopup("popup5");
-        setTimeout(() => closePopup("popup5"), 4000);
+        openPopup("popupFailed");
+        setTimeout(() => closePopup("popupFailed"), 4000);
       }
     }, 3000); // every 3 seconds
 
   } catch (error) {
     closePopup('popup3');
     document.getElementById("failMessage").textContent = "❌ Network error, please try again.";
-    openPopup("popup5");
-    setTimeout(() => closePopup("popup5"), 3000);
+    openPopup("popupFailed");
+    setTimeout(() => closePopup("popupFailed"), 3000);
   }
 }
 
