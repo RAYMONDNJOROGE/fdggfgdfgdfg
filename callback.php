@@ -1,36 +1,29 @@
 <?php
-$callbackJSON = file_get_contents('php://input');
-$callbackData = json_decode($callbackJSON, true);
+// Receive the JSON payload
+$callbackData = file_get_contents('php://input');
+$response = json_decode($callbackData, true);
 
-$filename = 'payments.json';
-$paymentDetails = [];
+// Log the callback data
+error_log("Callback received: " . json_encode($response));
 
-$resultCode = $callbackData['Body']['stkCallback']['ResultCode'];
+// Extract payment details
+$ResultCode = $response['Body']['stkCallback']['ResultCode'] ?? null;
+$ResultDesc = $response['Body']['stkCallback']['ResultDesc'] ?? null;
+$CheckoutRequestID = $response['Body']['stkCallback']['CheckoutRequestID'] ?? null;
+$Amount = $response['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'] ?? null;
+$MpesaReceiptNumber = $response['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'] ?? null;
+$PhoneNumber = $response['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'] ?? null;
 
-if ($resultCode == 0) {
-    $metadata = $callbackData['Body']['stkCallback']['CallbackMetadata']['Item'];
+// Log payment details
+error_log("Payment Status:");
+error_log("Result Code: " . ($ResultCode === "0" ? "Success ✅" : "Failed ❌"));
+error_log("Description: " . $ResultDesc);
+error_log("Checkout Request ID: " . $CheckoutRequestID);
+error_log("Amount: " . $Amount);
+error_log("Mpesa Receipt Number: " . $MpesaReceiptNumber);
+error_log("Phone Number: " . $PhoneNumber);
 
-    $amount = 0;
-    $phone = '';
-    
-    foreach ($metadata as $item) {
-        if ($item['Name'] == 'Amount') {
-            $amount = $item['Value'];
-        }
-        if ($item['Name'] == 'PhoneNumber') {
-            $phone = $item['Value'];
-        }
-    }
-
-    $paymentDetails = [
-        'phone' => $phone,
-        'amount' => $amount,
-        'timestamp' => date('Y-m-d H:i:s')
-    ];
-
-    // Save to file
-    $existingPayments = file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
-    $existingPayments[] = $paymentDetails;
-    file_put_contents($filename, json_encode($existingPayments, JSON_PRETTY_PRINT));
-}
+// Send response to Safaricom
+header("Content-Type: application/json");
+echo json_encode(['ResultCode' => 0, 'ResultDesc' => 'Callback received successfully']);
 ?>
