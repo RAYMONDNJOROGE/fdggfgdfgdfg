@@ -105,7 +105,11 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
-        
+<!--payment ststus-->
+        <div id="popup5" class="popup" style="display: none;">
+         <p id="paymentMessage"></p>
+        </div>
+
     <div class="wrapper">
     <form autocomplete="off" onsubmit="return validatePhone2()">
     <div>
@@ -1049,6 +1053,7 @@ body{
 
 .overlay {
     position: fixed;
+    visibility: hidden;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.6);
@@ -1064,7 +1069,7 @@ body{
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
-    display: none;
+    visibility: hidden;
     height: auto;
     width: 350px;
     justify-content: center;
@@ -1080,7 +1085,7 @@ body{
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
-    display: none;
+    visibility: hidden;
     height: auto;
     width: 350px;
     justify-content: center;
@@ -1109,11 +1114,11 @@ body{
   }
 .active.overlay {
     opacity: 1;
-    display: block;
+    visibility: visible;
 }
 .active.popup {
     opacity: 1;
-    display: block;
+    visibility: visible;
     transform: translate(-50%, -50%) scale(1);
   }
   .active.popup2 {
@@ -1347,7 +1352,7 @@ function openPopup(id) {
     // Activate the selected popup
     const popupToOpen = document.getElementById(id);
     if (popupToOpen) {
-      popupToOpen.classList.add("block");
+      popupToOpen.classList.add("active");
     }
   }
   
@@ -1355,16 +1360,16 @@ function openPopup(id) {
     // Close the specific popup (if needed)
     const popupToClose = document.getElementById(id);
     if (popupToClose) {
-      popupToClose.classList.remove("none");
+      popupToClose.classList.remove("active");
     }
   
     // Close all other popups too
     document.querySelectorAll(".popup, .popup2").forEach(popup => {
-      popup.classList.remove("block");
+      popup.classList.remove("active");
     });
   
     // Hide overlay
-    document.getElementById("overlay").classList.remove("block");
+    document.getElementById("overlay").classList.remove("active");
   
     // Clear form input and messages
     const phoneInput = document.getElementById("phone");
@@ -1377,6 +1382,13 @@ function openPopup(id) {
     if (stkStatusMessage) stkStatusMessage.textContent = "";
   }
 
+  function openPopup(id) {
+  document.getElementById(id).style.display = "block";
+}
+
+function closePopup(id) {
+  document.getElementById(id).style.display = "none";
+}
 
 
 
@@ -1481,12 +1493,33 @@ function validatePhone2() {
     const data = await res.json();
     console.log("Payment Status Response:", data);
 
-    if (data.paymentStatus === 'success' || data.paymentStatus === 'failed' || attempts >= 6) {
+    const status = data.paymentStatus;
+
+    if (status === 'success' || status === 'failed' || attempts >= 6) {
       clearInterval(interval);
-      console.log("✅ Final Payment Status:", data.paymentStatus.toUpperCase());
+      console.log("✅ Final Payment Status:", status.toUpperCase());
+
+      // Set popup message
+      const messageEl = document.getElementById("paymentMessage");
+      if (status === 'success') {
+        messageEl.textContent = "✅ Payment Successful!";
+      } else if (status === 'failed') {
+        messageEl.textContent = "❌ Payment Failed!";
+      } else {
+        messageEl.textContent = "⏰ Payment Timeout. Please try again.";
+      }
+
+      // Show popup
+      openPopup("popup5");
+
+      // Auto-close after 5 seconds
+      setTimeout(() => {
+        closePopup("popup5");
+      }, 5000);
     }
   }, 5000); // Check every 5 seconds
 }
+
                 </script>
    
 </body>
