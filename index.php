@@ -1453,7 +1453,9 @@ async function handlePaymentSubmit(event) {
       }, 4000);
     }, 1000);
   }
-  let checkInterval;
+}
+
+let checkInterval;
     let attempts = 0;
 
     function startPaymentStatusCheck() {
@@ -1484,7 +1486,6 @@ async function handlePaymentSubmit(event) {
       console.error("Error checking payment:", error);
     }
   }, 5000); // Check every 5 seconds
-    }
 }
 
 
