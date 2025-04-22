@@ -1444,16 +1444,16 @@ function openPopup(id) {
       "Payment Request Sent. Please Enter your M-PESA PIN.";
     setTimeout(() => closePopup('popup4'), 3000);
 
-    // Start polling for final status
-    const checkoutID = data.CheckoutRequestID;
+// 4) Poll for final status every 5s
+const checkoutID = data.CheckoutRequestID;
     const pollInterval = setInterval(async () => {
       try {
-        const resp = await fetch("check_status.php", {
+        const statusRes = await fetch("check_status.php", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: `CheckoutRequestID=${checkoutID}`
         });
-        const stat = await resp.json();
+        const stat = await statusRes.json();
 
         if (stat.ResultCode === 0) {
           // ✅ success
@@ -1461,18 +1461,18 @@ function openPopup(id) {
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
           openPopup('popupSuccess');
-          setTimeout(() => closePopup('popupSuccess'), 3000);
+          setTimeout(() => closePopup('popupSuccess'), 5000);
 
         } else if (stat.ResultCode === 1032) {
-          // ❌ user cancelled
+          // ❌ cancelled
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "Payment Cancelled";
           openPopup("popupFailed");
-          setTimeout(() => closePopup("popupFailed"), 3000);
+          setTimeout(() => closePopup("popupFailed"), 5000);
         }
-        // else still pending — do nothing
+        // otherwise still pending
+
       } catch (err) {
-        // on network or parse error
         clearInterval(pollInterval);
         document.getElementById("failMessage").textContent = "Error checking status";
         openPopup("popupFailed");
@@ -1481,15 +1481,13 @@ function openPopup(id) {
     }, 1000);
 
   } catch (error) {
-    // STK Push network error
-    clearInterval(pollInterval);   // in case it's running
+    // network error
     closePopup('popup3');
     document.getElementById("failMessage").textContent = "Network error, please try again.";
     openPopup("popupFailed");
     setTimeout(() => closePopup("popupFailed"), 5000);
   }
 }
-
 
 
 //check if phone number is valid*2
@@ -1503,7 +1501,7 @@ function validatePhone2() {
       return true;
     } else {
       // ❌ Invalid number: show message in popup2 and prevent form submit
-      message.textContent = "Error! Please Enter your phone number in the Format 254XXXXXXXXX";
+      message.textContent = "❌Error! Please Enter your phone number in the Format 254XXXXXXXXX";
       openPopup('popup2');
       return false;
     }

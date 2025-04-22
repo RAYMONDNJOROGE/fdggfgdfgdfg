@@ -8,14 +8,14 @@ $consumerSecret    = 'hu1EnuMQO4asAmvwqRn65c5OZwDqTnYAz9hA5NQaL0GopQQOAkuJjRhGWF
 $BusinessShortCode = '174379';
 $Passkey           = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
 
-// 1) Read the CheckoutRequestID from the request
+// 1) Read CheckoutRequestID from POST
 $checkoutID = $_POST['CheckoutRequestID'] ?? '';
 if (!$checkoutID) {
     echo json_encode(['error' => 'Missing CheckoutRequestID']);
     exit;
 }
 
-// 2) Fetch an OAuth token
+// 2) Get OAuth token
 $tokenUrl = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 $ch = curl_init($tokenUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -30,7 +30,7 @@ if (!$accessToken) {
     exit;
 }
 
-// 3) Prepare the STK Push query payload
+// 3) Prepare STK Push query
 $timestamp = date('YmdHis');
 $password  = base64_encode($BusinessShortCode . $Passkey . $timestamp);
 $queryUrl  = 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
@@ -47,7 +47,7 @@ $headers = [
     'Content-Type: application/json'
 ];
 
-// 4) Send the STK Push query request
+// 4) Send the query
 $ch = curl_init($queryUrl);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -58,7 +58,7 @@ curl_close($ch);
 
 $data = json_decode($queryResp, true);
 
-// 5) Return only the fields your frontend needs
+// 5) Return minimal fields to the frontend
 echo json_encode([
     'ResultCode' => $data['ResultCode'] ?? null,
     'ResultDesc' => $data['ResultDesc'] ?? null
