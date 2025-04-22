@@ -104,7 +104,10 @@
         <div id="popup4" class="popup">
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
-
+        
+        <div id="popup5" class="popup">
+        <p style="font-weight: 600;" class="error"></p>
+        </div>
         
     <div class="wrapper">
     <form autocomplete="off" onsubmit="return validatePhone2()">
@@ -1465,6 +1468,35 @@ function validatePhone2() {
   }
 
   //check payment status
+  function pollPaymentStatus(checkoutRequestID) {
+  let attempts = 0;
+
+  const interval = setInterval(async () => {
+    attempts++;
+    console.log(`📡 Checking payment status (attempt ${attempts})...`);
+
+    const res = await fetch("check_payment_status.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `checkoutRequestID=${checkoutRequestID}`
+    });
+
+    const data = await res.json();
+    console.log("📬 Payment Status Response:", data);
+
+    if (data.paymentStatus === 'success' || data.paymentStatus === 'failed' || attempts >= 6) {
+      clearInterval(interval);
+      console.log("✅ Final Payment Status:", data.paymentStatus.toUpperCase());
+
+      // Optionally show success popup
+      if (data.paymentStatus === 'success') {
+        openPopup('popup5');
+        setTimeout(() => closePopup('popup5'), 5000);
+      }
+    }
+  }, 5000); // Check every 5 seconds
+}
+
                 </script>
    
 </body>
