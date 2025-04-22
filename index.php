@@ -99,13 +99,6 @@
         <p style="font-weight: 600; color: blue" class="error">Kindly Wait for the Payment Request on your Phone</p>   
         <div class="spinner"></div> <!-- Loading animation -->  
         </div>
-<!--success poup-->
-<div class="popup" id="popupSuccess">
-  <div class="popup-content">
-    <p id="paymentMessage"></p>
-    <button onclick="closePopup('popupSuccess')">Close</button>
-  </div>
-</div>
 
 <!--STK message-->
         <div id="popup4" class="popup">
@@ -1404,39 +1397,13 @@ async function handlePaymentSubmit(event) {
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
-  if (!/^254\d{6,}$/.test(phone)) {
+  if (!/^254\d*$/.test(phone)) {
     message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
     return;
   }
 
-  openPopup('popup3'); // Show loading spinner
-
-  // After showing loading spinner popup (popup3)
-setTimeout(async () => {
-  try {
-    const response = await fetch('latest_payment.php');
-    const data = await response.json();
-
-    closePopup('popup3'); // Hide loading spinner
-
-    if (data.phone && data.amount) {
-      document.getElementById('paymentMessage').textContent =
-        `✅ Payment of KES ${data.amount} received from ${data.phone}.Redirecting...`;
-      openPopup('popupSuccess'); // Show success popup
-    } else {
-      openPopup('popup4'); // Show failure notice
-      document.getElementById("stkStatusMessage").textContent =
-        "Payment not made!❌";
-    }
-    setTimeout(() => {
-  closePopup('popup4'); // Close it after 3 seconds
-}, 3000);
-  } catch (error) {
-    console.error("Error checking payment:", error);
-  }
-}, 10000); // Check after 15 seconds
-
+  openPopup('popup3'); // Loading spinner
 
   try {
     const res = await fetch("pay.php", {
@@ -1446,33 +1413,36 @@ setTimeout(async () => {
     });
 
     const data = await res.json();
-    console.log("STK Response:", data);
+    console.log("STK Push Response:", data);
 
-    if (data.ResponseCode === "0") {
-      console.log("✅ STK Push Sent. Awaiting payment...");
-      // Poll for payment status using CheckoutRequestID
-      pollPaymentStatus(data.CheckoutRequestID);
-    } else {
-      console.error("❌ Failed to send STK push:", data.CustomerMessage);
-    }
-
-    closePopup('popup3');
-    openPopup('popup4');
-    document.getElementById("stkStatusMessage").textContent = data.CustomerMessage || "STK Push Sent";
 
     setTimeout(() => {
-      closePopup('popup4');
-    }, 3000);
+      closePopup('popup3');
+      openPopup('popup4');
+      document.getElementById("stkStatusMessage").textContent =
+        data.ResponseCode === "0"
+          ? "Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
+          : `Failed: ${data.errorMessage || "Unknown error"}`;
+
+      setTimeout(() => {
+        closePopup('popup4');
+      }, 3000);
+    }, 1000);
 
   } catch (error) {
     console.error("STK Push failed:", error);
-    closePopup('popup3');
-    openPopup('popup4');
-    document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
-    setTimeout(() => closePopup('popup4'), 4000);
+
+    setTimeout(() => {
+      closePopup('popup3');
+      openPopup('popup4');
+      document.getElementById("stkStatusMessage").textContent = "NETWORK ERROR❌ . Please Try Again!";
+
+      setTimeout(() => {
+        closePopup('popup4');
+      }, 4000);
+    }, 1000);
   }
 }
-
 
 
   
@@ -1500,7 +1470,7 @@ function validatePhone2() {
 
   const interval = setInterval(async () => {
     attempts++;
-    console.log(`🔁 Checking payment status... (Attempt ${attempts})`);
+    console.log(`Checking payment status (attempt ${attempts})...`);
 
     const res = await fetch("check_payment_status.php", {
       method: "POST",
@@ -1509,52 +1479,14 @@ function validatePhone2() {
     });
 
     const data = await res.json();
-    console.log("Payment Status........:", data);
+    console.log("Payment Status Response:", data);
 
-    if (data.paymentStatus === 'success') {
+    if (data.paymentStatus === 'success' || data.paymentStatus === 'failed' || attempts >= 6) {
       clearInterval(interval);
-
-      // ✅ Show popup
-      document.getElementById("paymentMessage").textContent = "✅ Payment Successful!. Redirecting...";
-      openPopup("popup4");
-
-      // ⏳ Auto-close after 5 seconds
-      setTimeout(() => {
-        closePopup("popup4");
-      }, 5000);
-
-    } else if (data.paymentStatus === 'failed' || attempts >= 10) {
-      clearInterval(interval);
-
-      document.getElementById("paymentMessage").textContent =
-        data.paymentStatus === 'failed'
-          ? "❌ Payment Failed"
-          : "⏰ Payment Status Timeout";
-      openPopup("popup5");
-
-      setTimeout(() => {
-        closePopup("popup5");
-      }, 5000);
+      console.log("✅ Final Payment Status:", data.paymentStatus.toUpperCase());
     }
-  }, 2000); // every 2s, max 10 attempts
+  }, 5000); // Check every 5 seconds
 }
-
-
-
-async function checkLatestPayment() {
-  try {
-    const res = await fetch("latest_payment.php");
-    const data = await res.json();
-
-    console.log("Latest payment:", data);
-  } catch (err) {
-    console.error("Error fetching latest payment:", err);
-  }
-}
-setTimeout(() => {
-  checkLatestPayment();
-}, 5000);
-
                 </script>
    
 </body>
