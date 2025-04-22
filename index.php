@@ -1417,23 +1417,27 @@ async function handlePaymentSubmit(event) {
   try {
     const response = await fetch('latest_payment.php');
     const data = await response.json();
-    console.log("payments:", data);
 
     closePopup('popup3'); // Hide loading spinner
 
     if (data.phone && data.amount) {
-      document.getElementById('paymentMessage').textContent =
+      // ✅ Log only phone and amount
+      console.log(`📞 Phone: ${data.phone}`);
+      console.log(`💰 Amount: KES ${data.amount}`);
+
+      document.getElementById('payments').textContent =
         `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+
       openPopup('popupSuccess'); // Show success popup
 
       setTimeout(() => {
-        closePopup('popupSuccess'); // Close it after 5 seconds
+        closePopup('popupSuccess'); // Close after 5 seconds
       }, 5000);
-
     } else {
       document.getElementById("stkStatusMessage").textContent =
         "❌ Payment Unsuccessful";
-      openPopup('popup4'); // Show failure popup
+
+      openPopup('popup4'); // Show error popup
 
       setTimeout(() => {
         closePopup('popup4');
@@ -1441,7 +1445,8 @@ async function handlePaymentSubmit(event) {
     }
 
   } catch (error) {
-    console.error("Error checking payment:", error);
+    console.error("❌ Error checking payment:", error);
+
     openPopup('popup4');
     document.getElementById("stkStatusMessage").textContent =
       "❌ Error checking payment status. Try again.";
@@ -1450,7 +1455,7 @@ async function handlePaymentSubmit(event) {
       closePopup('popup4');
     }, 4000);
   }
-}, 5000);
+}, 5000); // Check after 5 seconds
 
 
 
@@ -1462,7 +1467,6 @@ async function handlePaymentSubmit(event) {
     });
 
     const data = await res.json();
-    console.log("STK Push Response:", data);
 
 
     setTimeout(() => {

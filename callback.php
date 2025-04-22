@@ -1,21 +1,36 @@
 <?php
-$data = file_get_contents("php://input");
-$log = json_decode($data, true);
+$callbackJSON = file_get_contents('php://input');
+$callbackData = json_decode($callbackJSON, true);
 
-// Safely parse fields
-$phone = $log['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'] ?? '';
-$amount = $log['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'] ?? '';
+$filename = 'payments.json';
+$paymentDetails = [];
 
-$entry = [
-    'phone' => $phone,
-    'amount' => $amount
-];
+$resultCode = $callbackData['Body']['stkCallback']['ResultCode'];
 
-// Load existing
-$existing = file_exists('payments.json') ? json_decode(file_get_contents('payments.json'), true) : [];
+if ($resultCode == 0) {
+    $metadata = $callbackData['Body']['stkCallback']['CallbackMetadata']['Item'];
 
-// Append new
-$existing[] = $entry;
+    $amount = 0;
+    $phone = '';
+    
+    foreach ($metadata as $item) {
+        if ($item['Name'] == 'Amount') {
+            $amount = $item['Value'];
+        }
+        if ($item['Name'] == 'PhoneNumber') {
+            $phone = $item['Value'];
+        }
+    }
 
-// Save back
-file_put_contents('payments.json', json_encode($existing, JSON_PRETTY_PRINT));
+    $paymentDetails = [
+        'phone' => $phone,
+        'amount' => $amount,
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
+
+    // Save to file
+    $existingPayments = file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
+    $existingPayments[] = $paymentDetails;
+    file_put_contents($filename, json_encode($existingPayments, JSON_PRETTY_PRINT));
+}
+?>
