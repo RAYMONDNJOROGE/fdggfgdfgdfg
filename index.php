@@ -1448,9 +1448,9 @@ function openPopup(id) {
     const checkoutID = data.CheckoutRequestID;
     const pollInterval = setInterval(async () => {
       try {
-        const resp = await fetch('check_status.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        const resp = await fetch("check_status.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: `CheckoutRequestID=${checkoutID}`
         });
         const stat = await resp.json();
