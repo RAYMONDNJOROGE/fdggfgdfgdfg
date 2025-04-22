@@ -1453,41 +1453,40 @@ async function handlePaymentSubmit(event) {
       }, 4000);
     }, 1000);
   }
+  let checkInterval;
+    let attempts = 0;
+
+    function startPaymentStatusCheck() {
+  checkInterval = setInterval(async () => {
+    try {
+      const response = await fetch('latest_payment.php');
+      const data = await response.json();
+
+      if (data.phone && data.amount) {
+        console.log(`✅ Payment of KES ${data.amount} received from ${data.phone}`);
+        document.getElementById('payments').textContent =
+          `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+        openPopup('popupSuccess');
+        clearInterval(checkInterval); // Stop checking
+
+        setTimeout(() => closePopup('popupSuccess'), 5000);
+      } else {
+        attempts++;
+        if (attempts >= 12) { // 12 x 5s = 60 seconds
+          console.log("❌ Payment not confirmed within time.");
+          document.getElementById("stkStatusMessage").textContent = "❌ Payment not completed in time.";
+          openPopup('popup4');
+          setTimeout(() => closePopup('popup4'), 5000);
+          clearInterval(checkInterval);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking payment:", error);
+    }
+  }, 5000); // Check every 5 seconds
+    }
 }
 
-const startTime = Date.now();
-const maxDuration = 60 * 1000; // 60 seconds
-
-const interval = setInterval(async () => {
-  const elapsed = Date.now() - startTime;
-  console.log(`🔁 Checking payment... (${Math.floor(elapsed / 1000)}s)`);
-
-  try {
-    const response = await fetch('latest_payment.php');
-    const data = await response.json();
-
-    if (data.phone && data.amount) {
-      console.log("✅ Payment confirmed:", data);
-      document.getElementById('payments').textContent =
-        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
-      openPopup('popupSuccess');
-      setTimeout(() => closePopup('popupSuccess'), 5000);
-      clearInterval(interval);
-    } else if (elapsed >= maxDuration) {
-      console.log("⏱️ Timeout: Payment not received.");
-      document.getElementById("stkStatusMessage").textContent = "❌ Payment not confirmed";
-      openPopup('popup4');
-      setTimeout(() => closePopup('popup4'), 5000);
-      clearInterval(interval);
-    }
-  } catch (error) {
-    console.error("❌ Error checking payment:", error);
-    document.getElementById("stkStatusMessage").textContent = "❌ Error checking payment status";
-    openPopup('popup4');
-    setTimeout(() => closePopup('popup4'), 5000);
-    clearInterval(interval);
-  }
-}, 5000); // poll every 5 seconds
 
   
   
