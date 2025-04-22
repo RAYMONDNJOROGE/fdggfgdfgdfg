@@ -107,7 +107,7 @@
 <!--payment status popup-->
 <div class="popup" id="popupSuccess">
   <div class="popup-content">
-    <p id="paymentMessage"></p>
+    <p id="payments"></p>
   </div>
 </div>
 
@@ -1411,8 +1411,9 @@ async function handlePaymentSubmit(event) {
   }
 
   openPopup('popup3'); // Loading spinner
+
   // After showing loading spinner popup (popup3)
-setTimeout(async () => {
+  setTimeout(async () => {
   try {
     const response = await fetch('latest_payment.php');
     const data = await response.json();
@@ -1420,23 +1421,36 @@ setTimeout(async () => {
     closePopup('popup3'); // Hide loading spinner
 
     if (data.phone && data.amount) {
-      document.getElementById('paymentMessage').textContent =
-        `Payment of KES ${data.amount} received from ${data.phone}`;
+      document.getElementById('payments').textContent =
+        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
       openPopup('popupSuccess'); // Show success popup
-    } else {
-      openPopup('popup4'); // Show failure notice
-      document.getElementById("stkStatusMessage").textContent =
-        "Payment Unsuccessful";
-    }
-    openPopup('popupSuccess'); // Show the popup
 
-   setTimeout(() => {
-  closePopup('popupSuccess'); // Close it after 5 seconds
-}, 3000);
+      setTimeout(() => {
+        closePopup('popupSuccess'); // Close it after 5 seconds
+      }, 5000);
+
+    } else {
+      document.getElementById("stkStatusMessage").textContent =
+        "❌ Payment Unsuccessful";
+      openPopup('popup4'); // Show failure popup
+
+      setTimeout(() => {
+        closePopup('popup4');
+      }, 4000);
+    }
+
   } catch (error) {
     console.error("Error checking payment:", error);
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent =
+      "❌ Error checking payment status. Try again.";
+
+    setTimeout(() => {
+      closePopup('popup4');
+    }, 4000);
   }
-}, 15000); // Check after 15 seconds
+}, 15000);
+
 
 
   try {
