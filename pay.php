@@ -63,13 +63,5 @@ if (isset($_POST['submit'])) {
     curl_close($curl);
 
     $responseData = json_decode($response, true);
-
-    // Return response with CheckoutRequestID to frontend
-    header('Content-Type: application/json');
-    echo json_encode([
-        'ResponseCode' => $responseData['ResponseCode'] ?? '1',
-        'CustomerMessage' => $responseData['CustomerMessage'] ?? '❌ Failed to Initiate STK Push',
-        'CheckoutRequestID' => $responseData['CheckoutRequestID'] ?? null
-    ]);
 }
 ?>

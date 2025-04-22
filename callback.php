@@ -1,29 +1,48 @@
 <?php
-// Receive the JSON payload
-$callbackData = file_get_contents('php://input');
-$response = json_decode($callbackData, true);
+$callbackJSON = file_get_contents('php://input');
+$callbackData = json_decode($callbackJSON, true);
 
-// Log the callback data
-error_log("Callback received: " . json_encode($response));
+$filename = 'payments.json';
+$paymentDetails = [];
 
-// Extract payment details
-$ResultCode = $response['Body']['stkCallback']['ResultCode'] ?? null;
-$ResultDesc = $response['Body']['stkCallback']['ResultDesc'] ?? null;
-$CheckoutRequestID = $response['Body']['stkCallback']['CheckoutRequestID'] ?? null;
-$Amount = $response['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'] ?? null;
-$MpesaReceiptNumber = $response['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'] ?? null;
-$PhoneNumber = $response['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'] ?? null;
+file_put_contents('logs.json', json_encode($callbackData, JSON_PRETTY_PRINT)); // for debugging
 
-// Log payment details
-error_log("Payment Status:");
-error_log("Result Code: " . ($ResultCode === "0" ? "Success ✅" : "Failed ❌"));
-error_log("Description: " . $ResultDesc);
-error_log("Checkout Request ID: " . $CheckoutRequestID);
-error_log("Amount: " . $Amount);
-error_log("Mpesa Receipt Number: " . $MpesaReceiptNumber);
-error_log("Phone Number: " . $PhoneNumber);
+$resultCode = $callbackData['Body']['stkCallback']['ResultCode'];
+$checkoutID = $callbackData['Body']['stkCallback']['CheckoutRequestID'];
 
-// Send response to Safaricom
-header("Content-Type: application/json");
-echo json_encode(['ResultCode' => 0, 'ResultDesc' => 'Callback received successfully']);
+if ($resultCode == 0) {
+    $metadata = $callbackData['Body']['stkCallback']['CallbackMetadata']['Item'];
+    $amount = 0;
+    $phone = '';
+
+    foreach ($metadata as $item) {
+        if ($item['Name'] == 'Amount') $amount = $item['Value'];
+        if ($item['Name'] == 'PhoneNumber') $phone = $item['Value'];
+    }
+
+    $paymentDetails = [
+        'CheckoutRequestID' => $checkoutID,
+        'ResultCode' => 0,
+        'amount' => $amount,
+        'phone' => $phone,
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
+
+    // Optionally send to DB
+    include 'save_to_db.php';
+} else {
+    $paymentDetails = [
+        'CheckoutRequestID' => $checkoutID,
+        'ResultCode' => $resultCode,
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
+}
+
+// Save to file
+$existing = file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
+$existing[$checkoutID] = $paymentDetails;
+file_put_contents($filename, json_encode($existing, JSON_PRETTY_PRINT));
+
+// Respond to Safaricom
+echo json_encode(["ResultCode" => 0, "ResultDesc" => "Callback received successfully"]);
 ?>

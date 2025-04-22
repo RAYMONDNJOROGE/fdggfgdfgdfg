@@ -105,6 +105,15 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
+        <div id="popup5" class="popup">
+        <p id="failMessage" style="font-weight: 600;" class="error"></p>
+        </div>
+
+        
+        <div id="popup6" class="popup">
+        <p id="payments" style="font-weight: 600;" class="error"></p>
+        </div>
+
 
 
         
@@ -1381,76 +1390,105 @@ body{
                 }
 
 
-
-
-                //check if phone number is valid
-                let selectedAmount = 0;
-
-
-
 // Function to initiate the payment process and show the phone input popup
+let selectedAmount = 0; // This should be set when a payment button is clicked
+
+// Triggered when user clicks a payment button
 function handlePayment(event, amount) {
-    event.preventDefault();
-    selectedAmount = amount; // Store selected amount globally
-    openPopup('popup1'); // Show phone input form popup
+  event.preventDefault();
+  selectedAmount = amount;
+  openPopup('popup1'); // Phone input
 }
 
-// Form submission from popup1
+// Handles form submission after user enters phone number
 async function handlePaymentSubmit(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    // Retrieve phone number input
-    const phone = document.getElementById("phone").value.trim();
-    const message = document.getElementById("message"); // Message display area
+  const phone = document.getElementById("phone").value.trim();
+  const message = document.getElementById("message");
 
-    // Validate phone number format
-    if (!/^254\d{9}$/.test(phone)) {
-        message.textContent = "Error❌! Use Format 254XXXXXXXXX"; // Display error in red
-        message.style.color = "red";
-        openPopup('popup2'); // Trigger error popup
-        return;
+  // Validate phone number
+  if (!/^254\d{9}$/.test(phone)) {
+    message.textContent = "Error❌! Use Format 254XXXXXXXXX";
+    message.style.color = "red";
+    openPopup('popup2');
+    return;
+  }
+
+  openPopup('popup3'); // Show loading spinner
+
+  try {
+    const res = await fetch("pay.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `phone=${encodeURIComponent(phone)}&amount=${encodeURIComponent(selectedAmount)}&submit=1`
+    });
+
+    const data = await res.json();
+
+    closePopup('popup3');
+
+    if (data.ResponseCode !== "0") {
+      // STK Push failed
+      document.getElementById("failMessage").textContent =
+        data.errorMessage || "❌ Failed to initiate payment";
+      openPopup("popup5");
+      return setTimeout(() => closePopup("popup5"), 3000);
     }
 
-    // Show loading spinner
-    openPopup('popup3');
+    // STK push successful
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent =
+      "✅ STK Push Sent! Please check your phone and enter your M-PESA PIN...";
+    setTimeout(() => closePopup('popup4'), 3000);
 
-    try {
-        // Send request to the server
-        const res = await fetch("pay.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `phone=${encodeURIComponent(phone)}&amount=${encodeURIComponent(selectedAmount)}&submit=1`
+    const checkoutID = data.CheckoutRequestID;
+
+    // Start polling for status
+    const pollInterval = setInterval(async () => {
+      try {
+        const statusRes = await fetch("check_status.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `CheckoutRequestID=${encodeURIComponent(checkoutID)}`
         });
 
-        const data = await res.json(); // Parse JSON response
+        const status = await statusRes.json();
 
-        // Check response and display status
-        setTimeout(() => {
-            closePopup('popup3'); // Close loading spinner
-            openPopup('popup4'); // Open success/error status popup
-            document.getElementById("stkStatusMessage").textContent = 
-                data.ResponseCode === "0"
-                    ? "✅Number Verified Successfully! Please Check your Phone and Enter your M-pesa PIN..."
-                    : `Failed: ${data.errorMessage || "Invalid Number❌!"}`;
+        if (status.ResultCode === 0) {
+          // ✅ Payment successful
+          clearInterval(pollInterval);
+          document.getElementById("payments").textContent =
+            `✅ Payment of KES ${status.amount} confirmed for ${status.phone}`;
+          openPopup("popup6");
+          return setTimeout(() => closePopup("popupSuccess"), 4000);
 
+        } else if (status.ResultCode === 1032) {
+          // ❌ Cancelled by user
+          clearInterval(pollInterval);
+          document.getElementById("failMessage").textContent = "❌ Payment Cancelled by User";
+          openPopup("popup5");
+          return setTimeout(() => closePopup("popup5"), 3000);
+        }
 
-            // Close the popup after 5 seconds
-            setTimeout(() => {
-                closePopup('popup4');
-            }, 5000);
-        }, 1000);
+        // If pending, continue polling
 
-    } catch (error) {
-    // Handle network or server error
-        setTimeout(() => {
-            closePopup('popup3');
-            openPopup('popup4');
-            document.getElementById("stkStatusMessage").textContent = "Network Error❌. Please Try Again!";
-            setTimeout(() => {
-                closePopup('popup4');
-            }, 4000);
-        }, 1000);
-    }
+      } catch (error) {
+        clearInterval(pollInterval);
+        console.error("Polling error:", error);
+        document.getElementById("failMessage").textContent = "❌ Error checking payment status";
+        openPopup("popup5");
+        setTimeout(() => closePopup("popup5"), 4000);
+      }
+    }, 1000);
+
+  } catch (error) {
+    console.error("STK Push failed:", error);
+    closePopup('popup3');
+    document.getElementById("failMessage").textContent = "❌ Network error. Please try again.";
+    openPopup("popup5");
+    setTimeout(() => closePopup("popup5"), 3000);
+  }
 }
   
   
