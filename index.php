@@ -107,7 +107,7 @@
 <!--payment status popup-->
 <div class="popup" id="popupSuccess">
   <div class="popup-content">
-    <p id="payments"></p>
+    <p id="paymentMessage"></p>
   </div>
 </div>
 
@@ -1421,7 +1421,7 @@ async function handlePaymentSubmit(event) {
     closePopup('popup3'); // Hide loading spinner
 
     if (data.phone && data.amount) {
-      document.getElementById('payments').textContent =
+      document.getElementById('paymentMessage').textContent =
         `✅ Payment of KES ${data.amount} received from ${data.phone}`;
       openPopup('popupSuccess'); // Show success popup
 
@@ -1449,7 +1449,7 @@ async function handlePaymentSubmit(event) {
       closePopup('popup4');
     }, 4000);
   }
-}, 1000);
+}, 5000);
 
 
 
