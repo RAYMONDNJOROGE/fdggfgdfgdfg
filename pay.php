@@ -71,10 +71,13 @@ if (isset($_POST['submit'])) {
 
     // Return response with CheckoutRequestID to frontend
     header('Content-Type: application/json');
-    echo json_encode([
-        'ResponseCode' => $responseData['ResponseCode'] ?? '1',
-        'CustomerMessage' => $responseData['CustomerMessage'] ?? 'Failed to initiate STK Push',
-        'CheckoutRequestID' => $responseData['CheckoutRequestID'] ?? null
-    ]);
+    header('Content-Type: application/json');
+echo json_encode([
+    'ResponseCode' => $responseData['ResponseCode'] ?? '1',
+    'CustomerMessage' => $responseData['CustomerMessage'] ?? 'Failed to initiate STK Push',
+    'CheckoutRequestID' => $responseData['CheckoutRequestID'] ?? null,
+    'startPolling' => true // tell frontend to check latest_payment.php
+]);
+
 }
 ?>

@@ -1417,77 +1417,67 @@ async function handlePaymentSubmit(event) {
   
 
   try {
-    const res = await fetch("pay.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
-    });
+  const res = await fetch("pay.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+  });
 
-    const data = await res.json();
-    console.log("STK Push Response:", data);
+  const data = await res.json();
+  console.log("STK Push Response:", data);
 
+  // Show loading popup while waiting for payment
+  openPopup('popup3');
 
-    setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent =
-        data.ResponseCode === "0"
-          ? "Payment Request Sent Successfully!. Please Enter your M-pesa PIN"
-          : `Failed: ${data.errorMessage || "Unknown error"}`;
-
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 3000);
-    }, 1000);
-
-  } catch (error) {
-    console.error("STK Push failed:", error);
+  // Show initial status message
+  setTimeout(() => {
+    closePopup('popup3');
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent =
+      data.ResponseCode === "0"
+        ? "Payment Request Sent Successfully! Please Enter your M-PESA PIN"
+        : `Failed: ${data.errorMessage || "Unknown error"}`;
 
     setTimeout(() => {
-      closePopup('popup3');
-      openPopup('popup4');
-      document.getElementById("stkStatusMessage").textContent = "NETWORK ERROR❌ . Please Try Again!";
+      closePopup('popup4');
+    }, 3000);
+  }, 1000);
 
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 4000);
-    }, 1000);
-  }
-}
+  // Start polling latest_payment.php every 5s
+  if (data.ResponseCode === "0") {
+    const pollInterval = setInterval(async () => {
+      const paymentRes = await fetch("latest_payment.php");
+      const paymentData = await paymentRes.json();
 
-let checkInterval;
-    let attempts = 0;
+      if (paymentData.phone && paymentData.amount) {
+        clearInterval(pollInterval); // Stop polling when payment is found
 
-    function startPaymentStatusCheck() {
-  checkInterval = setInterval(async () => {
-    try {
-      const response = await fetch('latest_payment.php');
-      const data = await response.json();
+        // Show success popup
+        document.getElementById("payments").textContent =
+          `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
+        openPopup("popupSuccess");
 
-      if (data.phone && data.amount) {
-        console.log(`✅ Payment of KES ${data.amount} received from ${data.phone}`);
-        document.getElementById('payments').textContent =
-          `✅ Payment of KES ${data.amount} received from ${data.phone}`;
-        openPopup('popupSuccess');
-        clearInterval(checkInterval); // Stop checking
-
-        setTimeout(() => closePopup('popupSuccess'), 5000);
-      } else {
-        attempts++;
-        if (attempts >= 12) { // 12 x 5s = 60 seconds
-          console.log("❌ Payment not confirmed within time.");
-          document.getElementById("stkStatusMessage").textContent = "❌ Payment not completed in time.";
-          openPopup('popup4');
-          setTimeout(() => closePopup('popup4'), 5000);
-          clearInterval(checkInterval);
-        }
+        setTimeout(() => {
+          closePopup("popupSuccess");
+        }, 5000);
       }
-    } catch (error) {
-      console.error("Error checking payment:", error);
-    }
-  }, 5000); // Check every 5 seconds
-}
+    }, 5000); // check every 5 seconds
+  }
 
+} catch (error) {
+  console.error("STK Push failed:", error);
+
+  setTimeout(() => {
+    closePopup('popup3');
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent =
+      "NETWORK ERROR❌ . Please Try Again!";
+
+    setTimeout(() => {
+      closePopup('popup4');
+    }, 4000);
+  }, 1000);
+}
 
   
   
