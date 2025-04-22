@@ -107,17 +107,15 @@
 
 <!--status poups-->
         <!-- ✅ Payment Success Popup -->
-<div id="popupSuccess" class="popup-success">
+<div id="popup5" class="popup">
   <div class="popup-box">
-    <h2>✅ Payment Successful</h2>
     <p id="payments"></p>
   </div>
 </div>
 
 <!-- ❌ Payment Failed Popup -->
-<div id="popupFailed" class="popup-failed">
+<div id="popup5" class="popup">
   <div class="popup-box">
-    <h2>❌ Payment Failed</h2>
     <p id="failMessage"></p>
   </div>
 </div>
@@ -1062,47 +1060,6 @@ body{
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
-/* ✅ Success Popup */
-.popup-success {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #e6ffed;
-  color: #155724;
-  border: 2px solid #28a745;
-  border-radius: 12px;
-  padding: 20px;
-  display: none;
-  z-index: 1001;
-}
-
-.popup-success.active {
-  display: block;
-}
-
-/* ❌ Failed Popup */
-.popup-failed {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #ffe6e6;
-  color: #721c24;
-  border: 2px solid #dc3545;
-  border-radius: 12px;
-  padding: 20px;
-  display: none;
-  z-index: 1001;
-}
-
-.popup-failed.active {
-  display: block;
-}
-
-/* Optional inner box style */
-.popup-box {
-  text-align: center;
-  font-family: sans-serif;
-}
 
 
 .overlay {
@@ -1479,8 +1436,9 @@ body{
     if (data.ResponseCode !== "0") {
       document.getElementById("failMessage").textContent =
         data.errorMessage || "❌ Failed to initiate payment";
-      openPopup("popupFailed");
-      return setTimeout(() => closePopup("popupFailed"), 3000);
+      openPopup("popup5");
+      return setTimeout(() => closePopup("popup5"), 3000);
+
     }
 
     // STK Push Successful — show PIN prompt
@@ -1489,7 +1447,7 @@ body{
       "✅ STK push Sent Successfully. Please Enter your M-PESA pin...";
     setTimeout(() => closePopup('popup4'), 3000);
 
-    // ✅ Poll for status every 3s
+    // ✅ Poll for status every 1s
     const checkoutID = data.CheckoutRequestID;
 
     const pollInterval = setInterval(async () => {
@@ -1507,15 +1465,15 @@ body{
           clearInterval(pollInterval);
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
-          openPopup('popupSuccess');
-          return setTimeout(() => closePopup('popupSuccess'), 4000);
+          openPopup('popup5');
+          return setTimeout(() => closePopup('popupSuccess'), 3000);
 
         } else if (stat.ResultCode === 1032) {
           // ❌ Payment Cancelled
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "❌ Payment Cancelled by User";
-          openPopup("popupFailed");
-          return setTimeout(() => closePopup("popupFailed"), 4000);
+          openPopup("popup5");
+          return setTimeout(() => closePopup("popup5"), 3000);
         }
 
         // Still pending — do nothing yet
@@ -1523,16 +1481,16 @@ body{
       } catch (err) {
         clearInterval(pollInterval);
         document.getElementById("failMessage").textContent = "❌ Network or API error while checking payment";
-        openPopup("popupFailed");
-        setTimeout(() => closePopup("popupFailed"), 4000);
+        openPopup("popup5");
+        setTimeout(() => closePopup("popup5"), 3000);
       }
-    }, 3000); // every 3 seconds
+    }, 1000); // every 1 second
 
   } catch (error) {
     closePopup('popup3');
     document.getElementById("failMessage").textContent = "❌ Network error, please try again.";
-    openPopup("popupFailed");
-    setTimeout(() => closePopup("popupFailed"), 3000);
+    openPopup("popup5");
+    setTimeout(() => closePopup("popup5"), 3000);
   }
 }
 
