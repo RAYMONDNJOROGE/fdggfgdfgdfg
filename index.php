@@ -1386,51 +1386,57 @@ body{
                 //check if phone number is valid
                 let selectedAmount = 0;
 
-                // Triggered by fixed-amount button
-                function handlePayment(event, amount) {
-                event.preventDefault();
-                selectedAmount = amount; // Store selected amount
-                openPopup('popup1');     // Show phone input form
-                }
 
-                // Form submission from popup1
-                async function handlePaymentSubmit(event) {
+
+// Function to initiate the payment process and show the phone input popup
+function handlePayment(event, amount) {
+    event.preventDefault();
+    selectedAmount = amount; // Store selected amount globally
+    openPopup('popup1'); // Show phone input form popup
+}
+
+// Form submission from popup1
+async function handlePaymentSubmit(event) {
     event.preventDefault();
 
+    // Retrieve phone number input
     const phone = document.getElementById("phone").value.trim();
-    const selectedAmount = document.getElementById("amount").value.trim(); // Get the selected amount
-    const message = document.getElementById("message"); // Message display element
+    const message = document.getElementById("message"); // Message display area
 
     // Validate phone number format
     if (!/^254\d{9}$/.test(phone)) {
-        message.textContent = "Error❌! Use Format 254XXXXXXXXX";
-        message.style.color = "red"; // Display error message in red
-        openPopup('popup2'); // Trigger popup for error
+        message.textContent = "Error❌! Use Format 254XXXXXXXXX"; // Display error in red
+        message.style.color = "red";
+        openPopup('popup2'); // Trigger error popup
         return;
     }
 
-    openPopup('popup3'); // Show loading spinner
+    // Show loading spinner
+    openPopup('popup3');
 
     try {
+        // Send request to the server
         const res = await fetch("pay.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: `phone=${encodeURIComponent(phone)}&amount=${encodeURIComponent(selectedAmount)}&submit=1`
         });
 
-        const data = await res.json();
+        const data = await res.json(); // Parse JSON response
 
-        // Check response and display status message
+        // Check response and display status
         setTimeout(() => {
-            closePopup('popup3'); // Close spinner
-            openPopup('popup4'); // Open status popup
-            document.getElementById("stkStatusMessage").textContent =
+            closePopup('popup3'); // Close loading spinner
+            openPopup('popup4'); // Open success/error status popup
+            document.getElementById("stkStatusMessage").textContent = 
                 data.ResponseCode === "0"
-                    ? "✅Number Verified Successfully!. Please Check your Phone and Enter your M-pesa PIN........"
+                    ? "✅Number Verified Successfully! Please Check your Phone and Enter your M-pesa PIN..."
                     : `Failed: ${data.errorMessage || "Invalid Number❌!"}`;
 
-            console.log("STK Push Response:", data); // Log response for debugging
+            // Log response for debugging
+            console.log("STK Push Response:", data);
 
+            // Close the popup after 5 seconds
             setTimeout(() => {
                 closePopup('popup4');
             }, 5000);
@@ -1439,6 +1445,7 @@ body{
     } catch (error) {
         console.error("STK Push failed❌:", error);
 
+        // Handle network or server error
         setTimeout(() => {
             closePopup('popup3');
             openPopup('popup4');
@@ -1449,8 +1456,6 @@ body{
         }, 1000);
     }
 }
-
-
   
   
                 //check if phone number is valid*2
