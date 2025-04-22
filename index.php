@@ -1516,11 +1516,11 @@ function validatePhone2() {
 
       // ✅ Show popup
       document.getElementById("paymentMessage").textContent = "✅ Payment Successful!. Redirecting...";
-      openPopup("popup5");
+      openPopup("popup4");
 
       // ⏳ Auto-close after 5 seconds
       setTimeout(() => {
-        closePopup("popup5");
+        closePopup("popup4");
       }, 5000);
 
     } else if (data.paymentStatus === 'failed' || attempts >= 10) {
