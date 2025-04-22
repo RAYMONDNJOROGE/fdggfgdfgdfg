@@ -1428,10 +1428,10 @@ setTimeout(async () => {
       document.getElementById("stkStatusMessage").textContent =
         "Payment Unsuccessful";
     }
-    openPopup('popup5'); // Show the popup
+    openPopup('popupSuccess'); // Show the popup
 
    setTimeout(() => {
-  closePopup('popup5'); // Close it after 5 seconds
+  closePopup('popupSuccess'); // Close it after 5 seconds
 }, 3000);
   } catch (error) {
     console.error("Error checking payment:", error);

@@ -5,3 +5,4 @@ if (file_exists('latest_payment.json')) {
 } else {
     echo json_encode(['status' => 'No payment found']);
 }
+
