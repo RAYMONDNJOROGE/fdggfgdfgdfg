@@ -107,7 +107,7 @@
 
 <!--status poups-->
         <!-- ✅ Payment Success Popup -->
-<div id="popupSuccess" class="popup">
+<div id="popup5" class="popup">
   <div class="error">
     <h2>✅ Payment Successful</h2>
     <p id="payments"></p>
@@ -115,7 +115,7 @@
 </div>
 
 <!-- ❌ Payment Failed Popup -->
-<div id="popupFailed" class="popup">
+<div id="popup5" class="popup">
   <div class="error">
     <h2>❌ Payment Failed</h2>
     <p id="failMessage"></p>
@@ -1465,15 +1465,15 @@ body{
           clearInterval(pollInterval);
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
-          openPopup('popupSuccess');
-          return setTimeout(() => closePopup('popupSuccess'), 4000);
+          openPopup('popup5');
+          return setTimeout(() => closePopup('popup5'), 4000);
 
         } else if (stat.ResultCode === 1032) {
           // ❌ Payment Cancelled
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "❌ Payment Cancelled by User";
-          openPopup("popupFailed");
-          return setTimeout(() => closePopup("popupFailed"), 4000);
+          openPopup("popup5");
+          return setTimeout(() => closePopup("popup5"), 4000);
         }
 
         // Still pending — do nothing yet
@@ -1481,16 +1481,16 @@ body{
       } catch (err) {
         clearInterval(pollInterval);
         document.getElementById("failMessage").textContent = "❌ Network or API error while checking payment";
-        openPopup("popupFailed");
-        setTimeout(() => closePopup("popupFailed"), 4000);
+        openPopup("popup5");
+        setTimeout(() => closePopup("popup5"), 4000);
       }
     }, 3000); // every 3 seconds
 
   } catch (error) {
     closePopup('popup3');
     document.getElementById("failMessage").textContent = "❌ Network error, please try again.";
-    openPopup("popupFailed");
-    setTimeout(() => closePopup("popupFailed"), 3000);
+    openPopup("popup5");
+    setTimeout(() => closePopup("popup5"), 3000);
   }
 }
 
