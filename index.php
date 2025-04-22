@@ -106,15 +106,15 @@
         </div>
 
 <!-- Success Popup -->
-<div id="popupSuccess" class="popup">
-    <p id="paymnets" class="error"></p>
-</div>
+    <div id="popupSuccess" class="popup">
+    <p id="payments" style="font-weight: 600;" class="error"></p>
+    </div>
 
 
 <!-- Failed Popup -->
-<div id="popupFailed" class="popup">
+    <div id="popupFailed" class="popup">
     <p id="failMessage" class="error"></p>
-</div>
+    </div>
 
 
 
@@ -1435,7 +1435,7 @@ function openPopup(id) {
       document.getElementById("failMessage").textContent =
         data.errorMessage || "Failed to initiate payment";
       openPopup("popupFailed");
-      return setTimeout(() => closePopup("popupFailed"), 5000);
+      return setTimeout(() => closePopup("popupFailed"), 3000);
     }
 
     // STK Push succeeded: ask for PIN
