@@ -108,7 +108,6 @@
 <div class="popup" id="popupSuccess">
   <div class="popup-content">
     <p id="paymentMessage"></p>
-    <button onclick="closePopup('popupSuccess')">Close</button>
   </div>
 </div>
 
@@ -1422,12 +1421,12 @@ setTimeout(async () => {
 
     if (data.phone && data.amount) {
       document.getElementById('paymentMessage').textContent =
-        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+        `Payment of KES ${data.amount} received from ${data.phone}`;
       openPopup('popupSuccess'); // Show success popup
     } else {
       openPopup('popup4'); // Show failure notice
       document.getElementById("stkStatusMessage").textContent =
-        "Payment not completed, Try again";
+        "Payment Unsuccessful";
     }
     openPopup('popup5'); // Show the popup
 
