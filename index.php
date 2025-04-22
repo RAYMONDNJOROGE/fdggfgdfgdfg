@@ -1399,51 +1399,53 @@ function handlePayment(event, amount) {
 async function handlePaymentSubmit(event) {
     event.preventDefault();
 
+    // Retrieve phone number input
     const phone = document.getElementById("phone").value.trim();
-    const message = document.getElementById("message");
-    
-    // Validate phone number
+    const message = document.getElementById("message"); // Message display area
+
+    // Validate phone number format
     if (!/^254\d{9}$/.test(phone)) {
-        message.textContent = "Error❌! Use Format 254XXXXXXXXX";
+        message.textContent = "Error❌! Use Format 254XXXXXXXXX"; // Display error in red
         message.style.color = "red";
-        openPopup('popup2'); // Show error popup
+        openPopup('popup2'); // Trigger error popup
         return;
     }
-    
+
     // Show loading spinner
     openPopup('popup3');
 
     try {
+        // Send request to the server
         const res = await fetch("pay.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: `phone=${encodeURIComponent(phone)}&amount=${encodeURIComponent(selectedAmount)}&submit=1`
         });
 
-        const data = await res.json(); // Parse server response
+        const data = await res.json(); // Parse JSON response
 
+        // Check response and display status
         setTimeout(() => {
-            closePopup('popup3'); // Close loading popup
-            openPopup('popup4'); // Open status popup
+            closePopup('popup3'); // Close loading spinner
+            openPopup('popup4'); // Open success/error status popup
+            document.getElementById("stkStatusMessage").textContent = 
+                data.ResponseCode === "0"
+                    ? "✅Number Verified Successfully! Please Check your Phone and Enter your M-pesa PIN..."
+                    : `Failed: ${data.errorMessage || "Invalid Number❌!"}`;
 
-            const statusMessage = document.getElementById("stkStatusMessage");
-            if (data.ResponseCode === "0") {
-                statusMessage.textContent = "✅Payment Successful! Check your phone.";
-                
-                // Log phone number and amount in console
-                console.log("Phone Number:", phone);
-                console.log("Amount:", selectedAmount);
-            } else {
-                statusMessage.textContent = `❌Payment Failed: ${data.errorMessage || "Unknown error!"}`;
-            }
+            // Log response for debugging
+            console.log("STK Push Response:", data);
 
+            // Close the popup after 5 seconds
             setTimeout(() => {
-                closePopup('popup4'); // Auto-close status popup
+                closePopup('popup4');
             }, 5000);
         }, 1000);
+
     } catch (error) {
         console.error("STK Push failed❌:", error);
-        
+
+        // Handle network or server error
         setTimeout(() => {
             closePopup('popup3');
             openPopup('popup4');
@@ -1454,7 +1456,6 @@ async function handlePaymentSubmit(event) {
         }, 1000);
     }
 }
-
   
   
                 //check if phone number is valid*2

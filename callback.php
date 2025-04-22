@@ -1,52 +1,29 @@
 <?php
-// Receive JSON payload
+// Receive the JSON payload
 $callbackData = file_get_contents('php://input');
 $response = json_decode($callbackData, true);
+
+// Log the callback data
+error_log("Callback received: " . json_encode($response));
 
 // Extract payment details
 $ResultCode = $response['Body']['stkCallback']['ResultCode'] ?? null;
 $ResultDesc = $response['Body']['stkCallback']['ResultDesc'] ?? null;
+$CheckoutRequestID = $response['Body']['stkCallback']['CheckoutRequestID'] ?? null;
 $Amount = $response['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'] ?? null;
 $MpesaReceiptNumber = $response['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'] ?? null;
 $PhoneNumber = $response['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'] ?? null;
 
-// Prepare JSON data
-$paymentData = [
-    'ResultCode' => $ResultCode,
-    'ResultDesc' => $ResultDesc,
-    'Amount' => $Amount,
-    'MpesaReceiptNumber' => $MpesaReceiptNumber,
-    'PhoneNumber' => $PhoneNumber
-];
-
-// Write to JSON file
-file_put_contents('payments.json', json_encode($paymentData, JSON_PRETTY_PRINT), FILE_APPEND);
-
-// Log callback for debugging
-error_log("STK Push Callback: " . json_encode($response));
-
-// Database Connection (example using MySQL)
-$db = new mysqli('localhost', 'username', 'password', 'database_name');
-if ($db->connect_error) {
-    error_log("Database connection failed: " . $db->connect_error);
-    die(json_encode(['ResultCode' => 1, 'ResultDesc' => 'Database connection failed']));
-}
-
-// Insert into database
-$stmt = $db->prepare("INSERT INTO payments (phone, amount, mpesa_receipt, result_code, result_desc) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("sssss", $PhoneNumber, $Amount, $MpesaReceiptNumber, $ResultCode, $ResultDesc);
-
-if ($stmt->execute()) {
-    error_log("Payment saved to database successfully.");
-} else {
-    error_log("Failed to save payment: " . $stmt->error);
-}
-
-// Close database connection
-$stmt->close();
-$db->close();
+// Log payment details
+error_log("Payment Status:");
+error_log("Result Code: " . ($ResultCode === "0" ? "Success ✅" : "Failed ❌"));
+error_log("Description: " . $ResultDesc);
+error_log("Checkout Request ID: " . $CheckoutRequestID);
+error_log("Amount: " . $Amount);
+error_log("Mpesa Receipt Number: " . $MpesaReceiptNumber);
+error_log("Phone Number: " . $PhoneNumber);
 
 // Send response to Safaricom
 header("Content-Type: application/json");
-echo json_encode(['ResultCode' => 0, 'ResultDesc' => 'Callback received successfully']);;
+echo json_encode(['ResultCode' => 0, 'ResultDesc' => 'Callback received successfully']);
 ?>
