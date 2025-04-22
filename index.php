@@ -104,10 +104,13 @@
         <div id="popup4" class="popup">
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
-        
-        <div id="popup5" class="popup">
-        <p style="font-weight: 600;" class="error"></p>
-        </div>
+<!--payment status popup-->
+<div id="popup5" class="error">
+  <div class="popup-content">
+    <p id="finalStatusMessage"></p>
+  </div>
+</div>
+
         
     <div class="wrapper">
     <form autocomplete="off" onsubmit="return validatePhone2()">
@@ -1473,7 +1476,7 @@ function validatePhone2() {
 
   const interval = setInterval(async () => {
     attempts++;
-    console.log(`📡 Checking payment status (attempt ${attempts})...`);
+    console.log(`Checking payment status (attempt ${attempts})...`);
 
     const res = await fetch("check_payment_status.php", {
       method: "POST",
@@ -1482,17 +1485,24 @@ function validatePhone2() {
     });
 
     const data = await res.json();
-    console.log("📬 Payment Status Response:", data);
+    console.log("Payment Status Response:", data);
 
     if (data.paymentStatus === 'success' || data.paymentStatus === 'failed' || attempts >= 6) {
       clearInterval(interval);
       console.log("✅ Final Payment Status:", data.paymentStatus.toUpperCase());
 
-      // Optionally show success popup
-      if (data.paymentStatus === 'success') {
-        openPopup('popup5');
-        setTimeout(() => closePopup('popup5'), 5000);
-      }
+      // Show popup5 with success or failure message
+      document.getElementById("finalStatusMessage").textContent =
+        data.paymentStatus === 'success'
+          ? "✅ Payment was successful!"
+          : "❌ Payment failed. Please try again.";
+
+      openPopup('popup5');
+
+      // Auto close popup after 5 seconds
+      setTimeout(() => {
+        closePopup('popup5');
+      }, 5000);
     }
   }, 5000); // Check every 5 seconds
 }
