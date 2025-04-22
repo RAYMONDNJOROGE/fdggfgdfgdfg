@@ -1417,6 +1417,7 @@ async function handlePaymentSubmit(event) {
   try {
     const response = await fetch('latest_payment.php');
     const data = await response.json();
+    console.log("payments:", data);
 
     closePopup('popup3'); // Hide loading spinner
 
