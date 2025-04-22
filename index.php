@@ -105,11 +105,13 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 <!--payment status popup-->
-<div id="popup5" class="error">
+<div class="popup" id="popupSuccess">
   <div class="popup-content">
-    <p id="finalStatusMessage"></p>
+    <p id="paymentMessage"></p>
+    <button onclick="closePopup('popupSuccess')">Close</button>
   </div>
 </div>
+
 
         
     <div class="wrapper">
@@ -1410,6 +1412,28 @@ async function handlePaymentSubmit(event) {
   }
 
   openPopup('popup3'); // Loading spinner
+  // After showing loading spinner popup (popup3)
+setTimeout(async () => {
+  try {
+    const response = await fetch('latest_payment.php');
+    const data = await response.json();
+
+    closePopup('popup3'); // Hide loading spinner
+
+    if (data.phone && data.amount) {
+      document.getElementById('paymentMessage').textContent =
+        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+      openPopup('popupSuccess'); // Show success popup
+    } else {
+      openPopup('popup4'); // Show failure notice
+      document.getElementById("stkStatusMessage").textContent =
+        "STK sent but payment not confirmed yet.";
+    }
+  } catch (error) {
+    console.error("Error checking payment:", error);
+  }
+}, 15000); // Check after 15 seconds
+
 
   try {
     const res = await fetch("pay.php", {
@@ -1469,44 +1493,6 @@ function validatePhone2() {
       return false;
     }
   }
-
-  //check payment status
-  function pollPaymentStatus(checkoutRequestID) {
-  let attempts = 0;
-
-  const interval = setInterval(async () => {
-    attempts++;
-    console.log(`Checking payment status (attempt ${attempts})...`);
-
-    const res = await fetch("check_payment_status.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `checkoutRequestID=${checkoutRequestID}`
-    });
-
-    const data = await res.json();
-    console.log("Payment Status Response:", data);
-
-    if (data.paymentStatus === 'success' || data.paymentStatus === 'failed' || attempts >= 6) {
-      clearInterval(interval);
-      console.log("✅ Final Payment Status:", data.paymentStatus.toUpperCase());
-
-      // Show popup5 with success or failure message
-      document.getElementById("finalStatusMessage").textContent =
-        data.paymentStatus === 'success'
-          ? "✅ Payment was successful!"
-          : "❌ Payment failed. Please try again.";
-
-      openPopup('popup5');
-
-      // Auto close popup after 5 seconds
-      setTimeout(() => {
-        closePopup('popup5');
-      }, 5000);
-    }
-  }, 5000); // Check every 5 seconds
-}
-
                 </script>
    
 </body>
