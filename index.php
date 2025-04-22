@@ -107,16 +107,16 @@
 
 <!--status poups-->
         <!-- ✅ Payment Success Popup -->
-<div id="popupSuccess" class="popup-success">
-  <div class="popup-box">
+<div id="popupSuccess" class="popup">
+  <div class="error">
     <h2>✅ Payment Successful</h2>
     <p id="payments"></p>
   </div>
 </div>
 
 <!-- ❌ Payment Failed Popup -->
-<div id="popupFailed" class="popup-failed">
-  <div class="popup-box">
+<div id="popupFailed" class="popup">
+  <div class="error">
     <h2>❌ Payment Failed</h2>
     <p id="failMessage"></p>
   </div>
@@ -1062,48 +1062,6 @@ body{
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
-/* ✅ Success Popup */
-.popup-success {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #e6ffed;
-  color: #155724;
-  border: 2px solid #28a745;
-  border-radius: 12px;
-  padding: 20px;
-  display: none;
-  z-index: 1001;
-}
-
-.popup-success.active {
-  display: block;
-}
-
-/* ❌ Failed Popup */
-.popup-failed {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #ffe6e6;
-  color: #721c24;
-  border: 2px solid #dc3545;
-  border-radius: 12px;
-  padding: 20px;
-  display: none;
-  z-index: 1001;
-}
-
-.popup-failed.active {
-  display: block;
-}
-
-/* Optional inner box style */
-.popup-box {
-  text-align: center;
-  font-family: sans-serif;
-}
-
 
 .overlay {
     position: fixed;
@@ -1486,7 +1444,7 @@ body{
     // STK Push Successful — show PIN prompt
     openPopup('popup4');
     document.getElementById("stkStatusMessage").textContent =
-      "✅ Payment Request Sent. Please enter M-PESA PIN...";
+      "✅ STK push Sent Successfully. Please Enter your M-PESA pin...";
     setTimeout(() => closePopup('popup4'), 3000);
 
     // ✅ Poll for status every 3s
