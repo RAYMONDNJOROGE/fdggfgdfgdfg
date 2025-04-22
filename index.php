@@ -61,7 +61,7 @@
 
 <!--This is the payment pop-up-->
     <div class="popup" id="popup1">
-        <form autocomplete="off" onsubmit="return handlePaymentSubmit(event)">
+        <form autocomplete="off" onsubmit="handlePaymentSubmit(event)">
            <div>
               <h1 class="h1-wrapper-pop">Enter your Safaricom Number to pay</h1>
            </div>
@@ -1477,7 +1477,7 @@ function validatePhone2() {
       return false;
     }
   }
-}
+
                 </script>
 
 </body>
