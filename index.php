@@ -453,7 +453,7 @@ body{
         font-size: 19px;
     }
     .boxes{
-        width: 145px;
+        width: 200px;
     }
     .boxcontainer{
         max-width: 350px;
