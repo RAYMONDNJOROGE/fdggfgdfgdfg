@@ -105,11 +105,9 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
-        <!--payment popup-->
-            <!-- Popup container -->
 <!-- Success Popup -->
 <div id="popupSuccess" class="popup">
-    <p id="successMessage" class="error">Payment Completed</p>
+    <p id="paymnets" class="error">Payment Completed</p>
 </div>
 
 
