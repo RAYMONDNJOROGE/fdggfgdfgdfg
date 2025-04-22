@@ -1424,53 +1424,55 @@ function openPopup(id) {
     const data = await res.json();
     closePopup('popup3');
 
-    // If STK Push itself failed immediately:
+    // Immediate STK Push failure
     if (data.ResponseCode !== "0") {
-      document.getElementById("failMessage").textContent = data.errorMessage || "Failed to initiate payment";
+      document.getElementById("failMessage").textContent =
+        data.errorMessage || "Failed to initiate payment";
       openPopup("popupFailed");
       return setTimeout(() => closePopup("popupFailed"), 5000);
     }
 
-    // STK Push succeeded, ask for PIN:
+    // STK Push succeeded: ask for PIN
     openPopup('popup4');
     document.getElementById("stkStatusMessage").textContent =
       "Payment Request Sent. Please Enter your M-PESA PIN.";
     setTimeout(() => closePopup('popup4'), 3000);
 
-    // Now poll for confirmation:
-        const pollInterval = setInterval(async () => {
-  try {
-    const paymentRes = await fetch("latest_payment.php");
-    const paymentData = await paymentRes.json();
+    // Now start polling for confirmation every 1s
+    const pollInterval = setInterval(async () => {
+      try {
+        const paymentRes = await fetch("latest_payment.php");
+        const paymentData = await paymentRes.json();
 
-    // If we find the matching payment, stop polling:
-    if (
-      paymentData.phone === phone &&
-      Number(paymentData.amount) === selectedAmount
-    ) {
-      clearInterval(pollInterval);        // ← stops the setInterval
-      document.getElementById("payments").textContent =
-        `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
-      openPopup("popupSuccess");
-      setTimeout(() => closePopup("popupSuccess"), 3000);
-    }
-  } catch (err) {
-    clearInterval(pollInterval);          // also stop on error
-    document.getElementById("failMessage").textContent =
-      "Error checking payment status";
-    openPopup("popupFailed");
-    setTimeout(() => closePopup("popup4"), 3000);
-  }
-}, 5000);
+        if (
+          paymentData.phone === phone &&
+          Number(paymentData.amount) === selectedAmount
+        ) {
+          clearInterval(pollInterval);
+          document.getElementById("payments").textContent =
+            `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
+          openPopup("popupSuccess");
+          setTimeout(() => closePopup("popupSuccess"), 3000);
+        }
+      } catch (err) {
+        clearInterval(pollInterval);
+        document.getElementById("failMessage").textContent =
+          "Error checking payment status";
+        openPopup("popup4");
+        setTimeout(() => closePopup("popup4"), 3000);
+      }
+    }, 1000);
 
   } catch (error) {
     console.error("STK Push network error:", error);
     closePopup('popup3');
-    document.getElementById("failMessage").textContent = "Network error, please try again.";
+    document.getElementById("failMessage").textContent =
+      "Network error, please try again.";
     openPopup("popupFailed");
-    setTimeout(() => closePopup("popupFailed"), 5000);
+    setTimeout(() => closePopup("popupFailed"), 3000);
   }
 }
+
 
 //check if phone number is valid*2
 
