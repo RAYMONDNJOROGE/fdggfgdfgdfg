@@ -1430,7 +1430,7 @@ setTimeout(async () => {
         "Payment not made!❌";
     }
     setTimeout(() => {
-  closePopup('popup5'); // Close it after 5 seconds
+  closePopup('popup4'); // Close it after 3 seconds
 }, 3000);
   } catch (error) {
     console.error("Error checking payment:", error);
