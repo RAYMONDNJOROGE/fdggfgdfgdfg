@@ -1405,9 +1405,9 @@ body{
                 openPopup('popup2');
                 return;
                 }
-                openPopup('popup3'); // Loading spinner
 
-                //fetch pay.php
+                openPopup('popup3'); // Loading spinner
+  
 
                 try {
                 const res = await fetch("pay.php", {
@@ -1415,23 +1415,31 @@ body{
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
                 });
+
                 const data = await res.json();
+
+
                 setTimeout(() => {
                 closePopup('popup3');
                 openPopup('popup4');
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
                 ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN...."
-                : `Failed: ${data.errorMessage || "Invalid Number❌!. Please try Again"}`;
+                : `Failed: ${data.errorMessage || "Unknown error❌"}`;
+
                 setTimeout(() => {
                 closePopup('popup4');
                 }, 5000);
                 }, 1000);
+
                 } catch (error) {
+                console.error("STK Push failed❌:", error);
+
                 setTimeout(() => {
                 closePopup('popup3');
                 openPopup('popup4');
                 document.getElementById("stkStatusMessage").textContent = "Network Error❌. Please Try Again!";
+
                 setTimeout(() => {
                 closePopup('popup4');
                 }, 4000);
