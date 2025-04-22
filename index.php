@@ -105,6 +105,14 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
+        <!--payment popup-->
+            <!-- Popup container -->
+<div id="popupSuccess" class="error">
+  <p id="payments"></p>
+</div>
+
+
+
 
 
         
@@ -1447,6 +1455,34 @@ async function handlePaymentSubmit(event) {
   }
 }
 
+setTimeout(async () => {
+  try {
+    const response = await fetch('latest_payment.php');
+    const data = await response.json();
+
+    if (data.phone && data.amount) {
+      console.log("✅ Payment confirmed:", data);
+
+      document.getElementById('payments').textContent =
+        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+      openPopup('popupSuccess');
+
+      setTimeout(() => closePopup('popupSuccess'), 5000);
+    } else {
+      console.log("❌ Payment not confirmed.");
+      document.getElementById("stkStatusMessage").textContent = "❌ Payment Unsuccessful";
+      openPopup('popup4');
+
+      setTimeout(() => closePopup('popup4'), 5000);
+    }
+  } catch (error) {
+    console.error("Error checking payment:", error);
+    document.getElementById("stkStatusMessage").textContent = "❌ Error checking payment status";
+    openPopup('popup4');
+
+    setTimeout(() => closePopup('popup4'), 5000);
+  }
+}, 10000); // 10s delay to allow time for payment
 
   
   
