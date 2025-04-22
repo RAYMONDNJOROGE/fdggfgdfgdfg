@@ -1401,7 +1401,7 @@ body{
                 const message = document.getElementById("message");
 
                 if (!/^254\d*$/.test(phone)) {
-                message.textContent = "❌ Error! Use Format 254XXXXXXXXX";
+                message.textContent = "Error❌! Use Format 254XXXXXXXXX";
                 openPopup('popup2');
                 return;
                 }
@@ -1424,8 +1424,8 @@ body{
                 openPopup('popup4');
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
-                ? "✅ STK Request Sent Successfully!. Please Enter your M-pesa PIN"
-                : `Failed: ${data.errorMessage || "❌ Unknown error"}`;
+                ? "✅STK Request Sent Successfully!. Please Enter your M-pesa PIN...."
+                : `Failed: ${data.errorMessage || "Unknown error❌"}`;
 
                 setTimeout(() => {
                 closePopup('popup4');
@@ -1433,12 +1433,12 @@ body{
                 }, 1000);
 
                 } catch (error) {
-                console.error("❌ STK Push failed:", error);
+                console.error("STK Push failed❌:", error);
 
                 setTimeout(() => {
                 closePopup('popup3');
                 openPopup('popup4');
-                document.getElementById("stkStatusMessage").textContent = "❌ Network Error. Please Try Again!";
+                document.getElementById("stkStatusMessage").textContent = "Network Error❌. Please Try Again!";
 
                 setTimeout(() => {
                 closePopup('popup4');
@@ -1460,7 +1460,7 @@ body{
                 return true;
                 } else {
                 // ❌ Invalid number: show message in popup2 and prevent form submit
-                message.textContent = "❌ Error! Please Enter your Phone Number in the Format 254XXXXXXXXX";
+                message.textContent = "Error❌! Please Enter your Phone Number in the Format 254XXXXXXXXX";
                 openPopup('popup2');
                 return false;
                 }
