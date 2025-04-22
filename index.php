@@ -1401,12 +1401,12 @@ function handlePayment(event, amount) {
 }
 
 // Form submission from popup1
-async function handlePaymentSubmit(event) {
+async function handlePaymentSubmit(event){
   event.preventDefault();
 
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
-
+}
   if (!/^254\d*$/.test(phone)) {
     message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
@@ -1416,7 +1416,7 @@ async function handlePaymentSubmit(event) {
   openPopup('popup3'); // Loading spinner
   
 
-  async function initiatePayment(phone, amount) {
+  async function handlePayment(phone, amount) {
   try {
     const res = await fetch("pay.php", {
       method: "POST",
