@@ -1400,7 +1400,7 @@ body{
                 const phone = document.getElementById("phone").value.trim();
                 const message = document.getElementById("message");
 
-                if (!/^254\d*$/.test(phone)) {
+                if (!/^254\d{9}$/.test(phone)) {
                 message.textContent = "Error❌! Use Format 254XXXXXXXXX";
                 openPopup('popup2');
                 return;
@@ -1424,7 +1424,7 @@ body{
                 openPopup('popup4');
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
-                ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN on your phone...."
+                ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN...."
                 : `Failed: ${data.errorMessage || "Unknown error❌"}`;
 
                 setTimeout(() => {
