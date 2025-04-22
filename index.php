@@ -1064,7 +1064,7 @@ body{
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
-    visibility: hidden;
+    display: none;
     height: auto;
     width: 350px;
     justify-content: center;
@@ -1080,7 +1080,7 @@ body{
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
-    visibility: hidden;
+    display: none;
     height: auto;
     width: 350px;
     justify-content: center;
@@ -1109,11 +1109,11 @@ body{
   }
 .active.overlay {
     opacity: 1;
-    visibility: visible;
+    display: block;
 }
 .active.popup {
     opacity: 1;
-    visibility: visible;
+    display: block;
     transform: translate(-50%, -50%) scale(1);
   }
   .active.popup2 {
@@ -1347,7 +1347,7 @@ function openPopup(id) {
     // Activate the selected popup
     const popupToOpen = document.getElementById(id);
     if (popupToOpen) {
-      popupToOpen.classList.add("active");
+      popupToOpen.classList.add("block");
     }
   }
   
@@ -1355,16 +1355,16 @@ function openPopup(id) {
     // Close the specific popup (if needed)
     const popupToClose = document.getElementById(id);
     if (popupToClose) {
-      popupToClose.classList.remove("active");
+      popupToClose.classList.remove("none");
     }
   
     // Close all other popups too
     document.querySelectorAll(".popup, .popup2").forEach(popup => {
-      popup.classList.remove("active");
+      popup.classList.remove("block");
     });
   
     // Hide overlay
-    document.getElementById("overlay").classList.remove("active");
+    document.getElementById("overlay").classList.remove("block");
   
     // Clear form input and messages
     const phoneInput = document.getElementById("phone");
