@@ -105,20 +105,6 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
-<!--status poups-->
-        <!-- ✅ Payment Success Popup -->
-<div id="popup5" class="popup">
-  <div class="popup-box">
-    <p id="payments"></p>
-  </div>
-</div>
-
-<!-- ❌ Payment Failed Popup -->
-<div id="popup5" class="popup">
-  <div class="popup-box">
-    <p id="failMessage"></p>
-  </div>
-</div>
 
 
         
@@ -1062,6 +1048,7 @@ body{
 }
 
 
+
 .overlay {
     position: fixed;
     top: 0; left: 0;
@@ -1408,91 +1395,58 @@ body{
 
                 // Form submission from popup1
                 async function handlePaymentSubmit(event) {
-  event.preventDefault();
+                event.preventDefault();
 
-  const phone = document.getElementById("phone").value.trim();
-  const message = document.getElementById("message");
+                const phone = document.getElementById("phone").value.trim();
+                const message = document.getElementById("message");
 
-  if (!/^254\d{9}$/.test(phone)) {
-    message.textContent = "❌ Error! Use Format 254XXXXXXXXX";
-    openPopup('popup2');
-    return;
-  }
+                if (!/^254\d*$/.test(phone)) {
+                message.textContent = "❌ Error! Use Format 254XXXXXXXXX";
+                openPopup('popup2');
+                return;
+                }
 
-  openPopup('popup3'); // Show loading spinner
+                openPopup('popup3'); // Loading spinner
+  
 
-  try {
-    const res = await fetch("pay.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
-    });
+                try {
+                const res = await fetch("pay.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+                });
 
-    const data = await res.json();
+                const data = await res.json();
 
-    closePopup('popup3');
 
-    // STK Push Failed
-    if (data.ResponseCode !== "0") {
-      document.getElementById("failMessage").textContent =
-        data.errorMessage || "❌ Failed to initiate payment";
-      openPopup("popup5");
-      return setTimeout(() => closePopup("popup5"), 3000);
+                setTimeout(() => {
+                closePopup('popup3');
+                openPopup('popup4');
+                document.getElementById("stkStatusMessage").textContent =
+                data.ResponseCode === "0"
+                ? "✅ STK Request Sent Successfully!. Please Enter your M-pesa PIN"
+                : `Failed: ${data.errorMessage || "❌ Unknown error"}`;
 
-    }
+                setTimeout(() => {
+                closePopup('popup4');
+                }, 3000);
+                }, 1000);
 
-    // STK Push Successful — show PIN prompt
-    openPopup('popup4');
-    document.getElementById("stkStatusMessage").textContent =
-      "✅ STK push Sent Successfully. Please Enter your M-PESA pin...";
-    setTimeout(() => closePopup('popup4'), 3000);
+                } catch (error) {
+                console.error("❌ STK Push failed:", error);
 
-    // ✅ Poll for status every 1s
-    const checkoutID = data.CheckoutRequestID;
+                setTimeout(() => {
+                closePopup('popup3');
+                openPopup('popup4');
+                document.getElementById("stkStatusMessage").textContent = "❌ Network Error. Please Try Again!";
 
-    const pollInterval = setInterval(async () => {
-      try {
-        const statusRes = await fetch("check_status.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `CheckoutRequestID=${checkoutID}`
-        });
+                setTimeout(() => {
+                closePopup('popup4');
+                }, 4000);
+                }, 1000);
+                }
+                }
 
-        const stat = await statusRes.json();
-
-        if (stat.ResultCode === 0) {
-          // ✅ Payment Successful
-          clearInterval(pollInterval);
-          document.getElementById("payments").textContent =
-            `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
-          openPopup('popup5');
-          return setTimeout(() => closePopup('popupSuccess'), 3000);
-
-        } else if (stat.ResultCode === 1032) {
-          // ❌ Payment Cancelled
-          clearInterval(pollInterval);
-          document.getElementById("failMessage").textContent = "❌ Payment Cancelled by User";
-          openPopup("popup5");
-          return setTimeout(() => closePopup("popup5"), 3000);
-        }
-
-        // Still pending — do nothing yet
-
-      } catch (err) {
-        clearInterval(pollInterval);
-        document.getElementById("failMessage").textContent = "❌ Network or API error while checking payment";
-        openPopup("popup5");
-        setTimeout(() => closePopup("popup5"), 3000);
-      }
-    }, 1000); // every 1 second
-
-  } catch (error) {
-    closePopup('popup3');
-    document.getElementById("failMessage").textContent = "❌ Network error, please try again.";
-    openPopup("popup5");
-    setTimeout(() => closePopup("popup5"), 3000);
-  }
-}
 
   
   
