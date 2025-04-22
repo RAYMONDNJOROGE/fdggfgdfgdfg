@@ -1480,7 +1480,7 @@ const checkoutID = data.CheckoutRequestID;
         openPopup("popupFailed");
         setTimeout(() => closePopup("popupFailed"), 3000);
       }
-    }, 5000);
+    }, 1000);
 
   } catch (error) {
     // network error
