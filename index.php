@@ -1429,7 +1429,7 @@ body{
 
                 setTimeout(() => {
                 closePopup('popup4');
-                }, 3000);
+                }, 5000);
                 }, 1000);
 
                 } catch (error) {
