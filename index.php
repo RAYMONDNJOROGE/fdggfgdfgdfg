@@ -1453,12 +1453,12 @@ function openPopup(id) {
                 `✅ Payment of KES ${paymentData.amount} received from ${paymentData.phone}`;
               openPopup("popupSuccess");
 
-              setTimeout(() => closePopup("popupSuccess"), 5000);
+              setTimeout(() => closePopup("popupSuccess"), 3000);
             }
           } catch (err) {
             console.error("Polling error:", err);
           }
-        }, 5000); // Poll every 5 seconds
+        }, 1000); // Poll every 1 second
       }
 
     } catch (error) {
