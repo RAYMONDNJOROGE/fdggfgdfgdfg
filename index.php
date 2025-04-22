@@ -1433,8 +1433,6 @@ async function handlePaymentSubmit(event) {
                     ? "✅Number Verified Successfully! Please Check your Phone and Enter your M-pesa PIN..."
                     : `Failed: ${data.errorMessage || "Invalid Number❌!"}`;
 
-            // Log response for debugging
-            console.log("STK Push Response:", data);
 
             // Close the popup after 5 seconds
             setTimeout(() => {
@@ -1443,9 +1441,7 @@ async function handlePaymentSubmit(event) {
         }, 1000);
 
     } catch (error) {
-        console.error("STK Push failed❌:", error);
-
-        // Handle network or server error
+    // Handle network or server error
         setTimeout(() => {
             closePopup('popup3');
             openPopup('popup4');
