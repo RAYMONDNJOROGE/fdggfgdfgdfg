@@ -108,19 +108,14 @@
         <!--payment popup-->
             <!-- Popup container -->
 <!-- Success Popup -->
-<div id="popupSuccess" class="error" style="align-items:center; justify-content:center;">
-  <div class="popup-content success">
-    <h2>✅ Payment Successful</h2>
-    <p id="payments"></p>
-  </div>
+<div id="popupSuccess" class="popup">
+    <p id="failMessage" class="error"></p>
 </div>
 
+
 <!-- Failed Popup -->
-<div id="popupFailed" class="error" style="align-items:center; justify-content:center;">
-  <div class="popup-content error">
-    <h2>❌ Payment Failed</h2>
-    <p id="failMessage"></p>
-  </div>
+<div id="popupFailed" class="popup">
+    <p id="failMessage" class="error"></p>
 </div>
 
 
