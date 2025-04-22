@@ -1404,58 +1404,74 @@ async function handlePaymentSubmit(event) {
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
-  if (!/^254\d*$/.test(phone)) {
+  if (!/^254\d{6,}$/.test(phone)) {
     message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
     return;
   }
 
-  openPopup('popup3'); // Loading spinner
+  openPopup('popup3'); // Show loading spinner
 
-  // After showing loading spinner popup (popup3)
-  setTimeout(async () => {
   try {
-    const response = await fetch('latest_payment.php');
-    const data = await response.json();
+    const res = await fetch("pay.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
+    });
 
-    closePopup('popup3'); // Hide loading spinner
+    const data = await res.json();
+    console.log("STK Response:", data);
 
-    if (data.phone && data.amount) {
-      // ✅ Log only phone and amount
-      console.log(`📞 Phone: ${data.phone}`);
-      console.log(`💰 Amount: KES ${data.amount}`);
-
-      document.getElementById('payments').textContent =
-        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
-
-      openPopup('popupSuccess'); // Show success popup
-
-      setTimeout(() => {
-        closePopup('popupSuccess'); // Close after 5 seconds
-      }, 5000);
+    if (data.ResponseCode === "0") {
+      console.log("✅ STK Push Sent. Awaiting payment...");
+      // Poll for payment status using CheckoutRequestID
+      pollPaymentStatus(data.CheckoutRequestID);
     } else {
-      document.getElementById("stkStatusMessage").textContent =
-        "❌ Payment Unsuccessful";
-
-      openPopup('popup4'); // Show error popup
-
-      setTimeout(() => {
-        closePopup('popup4');
-      }, 4000);
+      console.error("❌ Failed to send STK push:", data.CustomerMessage);
     }
 
-  } catch (error) {
-    console.error("❌ Error checking payment:", error);
-
+    closePopup('popup3');
     openPopup('popup4');
-    document.getElementById("stkStatusMessage").textContent =
-      "❌ Error checking payment status. Try again.";
+    document.getElementById("stkStatusMessage").textContent = data.CustomerMessage || "STK Push Sent";
 
     setTimeout(() => {
       closePopup('popup4');
-    }, 4000);
+    }, 3000);
+
+  } catch (error) {
+    console.error("STK Push failed:", error);
+    closePopup('popup3');
+    openPopup('popup4');
+    document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
+    setTimeout(() => closePopup('popup4'), 4000);
   }
-}, 5000); // Check after 5 seconds
+}
+
+
+  // After showing loading spinner popup (popup3)
+  function pollPaymentStatus(checkoutRequestID) {
+  let attempts = 0;
+
+  const interval = setInterval(async () => {
+    attempts++;
+    console.log(`🔁 Checking payment status... (Attempt ${attempts})`);
+
+    const res = await fetch("check_payment_status.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `checkoutRequestID=${checkoutRequestID}`
+    });
+
+    const data = await res.json();
+    console.log("📦 Payment Status:", data);
+
+    if (data.paymentStatus !== 'pending' || attempts >= 6) {
+      clearInterval(interval);
+      console.log("✅ Final Payment Status:", data.paymentStatus);
+    }
+  }, 5000); // Check every 5 seconds (30 sec max)
+}
+
 
 
 
