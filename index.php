@@ -106,20 +106,15 @@
         </div>
 
 <!-- Success Popup -->
-<div id="popupSuccess" class="popup" style="display:none; align-items:center; justify-content:center;">
-  <div class="popup-content success">
-    <h2>✅ Payment Successful</h2>
-    <p id="payments"></p>
-  </div>
-</div>
+    <div id="popupSuccess" class="popup">
+    <p id="payments" style="font-weight: 600;" class="error"></p>
+    </div>
+
 
 <!-- Failed Popup -->
-<div id="popupFailed" class="popup" style="display:none; align-items:center; justify-content:center;">
-  <div class="popup-content error">
-    <h2>❌ Payment Failed</h2>
-    <p id="failMessage"></p>
-  </div>
-</div>
+    <div id="popupFailed" class="popup">
+    <p id="failMessage" class="error"></p>
+    </div>
 
 
 
@@ -1361,15 +1356,6 @@ body{
 
 
                 <script>
-                    function openPopup(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = 'flex';
-}
-function closePopup(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = 'none';
-}
-
                     //open pop ups
 function openPopup(id) {
     document.getElementById("overlay").classList.add("active");
@@ -1471,7 +1457,6 @@ const checkoutID = data.CheckoutRequestID;
 
         if (stat.ResultCode === 0) {
           // ✅ success
-          console.log('✅ Detected successful payment in poll');
           clearInterval(pollInterval);
           document.getElementById("payments").textContent =
             `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
@@ -1480,7 +1465,6 @@ const checkoutID = data.CheckoutRequestID;
 
         } else if (stat.ResultCode === 1032) {
           // ❌ cancelled
-          console.log('Payment Cancelled');
           clearInterval(pollInterval);
           document.getElementById("failMessage").textContent = "Payment Cancelled";
           openPopup("popupFailed");
@@ -1494,7 +1478,7 @@ const checkoutID = data.CheckoutRequestID;
         openPopup("popupFailed");
         setTimeout(() => closePopup("popupFailed"), 3000);
       }
-    }, 1000);
+    }, 2000);
 
   } catch (error) {
     // network error
