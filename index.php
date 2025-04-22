@@ -1482,7 +1482,7 @@ setTimeout(async () => {
 
     setTimeout(() => closePopup('popup4'), 5000);
   }
-}, 10000); // 10s delay to allow time for payment
+}, 20000); // 10s delay to allow time for payment
 
   
   
