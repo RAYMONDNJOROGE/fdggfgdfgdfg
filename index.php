@@ -96,15 +96,15 @@
 
 <!--Payment notification proccessing-->
         <div id="popup3" class="popup">
-        <p style="font-weight: 600; color: blue" class="error">Kindly Wait as we Validate Your Number.....</p>   
+        <p style="font-weight: 600; color: blue" class="error">Kindly Wait for the Payment Request on your Phone</p>   
         <div class="spinner"></div> <!-- Loading animation -->  
         </div>
 
 <!--STK message-->
-       
-        <div id="popup6" class="popup">
+        <div id="popup4" class="popup">
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
-        </div> 
+        </div>
+
 
 
         
@@ -1400,8 +1400,8 @@ body{
                 const phone = document.getElementById("phone").value.trim();
                 const message = document.getElementById("message");
 
-                if (!/^254\d{9}$/.test(phone)) {
-                message.textContent = "Error❌! Use Format 254XXXXXXXXX";
+                if (!/^254\d*$/.test(phone)) {
+                message.textContent = "❌Error! Use Format 254XXXXXXXXX";
                 openPopup('popup2');
                 return;
                 }
@@ -1421,15 +1421,15 @@ body{
 
                 setTimeout(() => {
                 closePopup('popup3');
-                openPopup('popup6');
+                openPopup('popup4');
                 document.getElementById("stkStatusMessage").textContent =
                 data.ResponseCode === "0"
-                ? "✅Number Verified Successfully!. Please Enter your M-pesa PIN...."
-                : `Failed: ${data.errorMessage || "Unknown error❌"}`;
+                ? "✅ Request Sent Successfully!. Please Enter your M-pesa PIN"
+                : `Failed: ${data.errorMessage || "Unknown error"}`;
 
                 setTimeout(() => {
-                closePopup('popup6');
-                }, 5000);
+                closePopup('popup4');
+                }, 3000);
                 }, 1000);
 
                 } catch (error) {
@@ -1438,7 +1438,7 @@ body{
                 setTimeout(() => {
                 closePopup('popup3');
                 openPopup('popup4');
-                document.getElementById("stkStatusMessage").textContent = "Network Error❌. Please Try Again!";
+                document.getElementById("stkStatusMessage").textContent = "❌Network Error. Please Try Again!";
 
                 setTimeout(() => {
                 closePopup('popup4');
@@ -1460,7 +1460,7 @@ body{
                 return true;
                 } else {
                 // ❌ Invalid number: show message in popup2 and prevent form submit
-                message.textContent = "Error❌! Please Enter your Phone Number in the Format 254XXXXXXXXX";
+                message.textContent = "❌Error! Please Enter your Phone Number in the Format 254XXXXXXXXX";
                 openPopup('popup2');
                 return false;
                 }
