@@ -5,8 +5,8 @@ if (isset($_POST['submit'])) {
     // Safaricom credentials (replace with your real ones)
     $consumerKey = '1bvBpyAQdFgnAxVgrPOoE0wNlnqdgqmTGw2ifirVgeG0gscJ';
     $consumerSecret = 'hu1EnuMQO4asAmvwqRn65c5OZwDqTnYAz9hA5NQaL0GopQQOAkuJjRhGWFtOAiak';
-    $BusinessShortCode = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
-    $Passkey = '';
+    $BusinessShortCode = '174379';
+    $Passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
 
     // Acceptable amounts
     $allowedAmounts = [10, 20, 50, 80, 190, 650];
