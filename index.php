@@ -101,10 +101,7 @@
         </div>
 
 <!--STK message-->
-        <div id="popup4" class="popup">
-        <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
-        </div>
-
+       
         <div id="popup6" class="popup">
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div> 
