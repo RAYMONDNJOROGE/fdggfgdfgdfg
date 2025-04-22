@@ -76,15 +76,6 @@ if (isset($_POST['submit'])) {
     $responseData = json_decode($response, true);
 
     header('Content-Type: application/json');
-    $responseData = json_decode($response, true);
-
-echo json_encode([
-    'ResponseCode' => $responseData['ResponseCode'] ?? '1',
-    'CustomerMessage' => $responseData['CustomerMessage'] ?? 'No message',
-    'CheckoutRequestID' => $responseData['CheckoutRequestID'] ?? null
-]);
-
-    
-
+    echo $response;
 }
 ?>
