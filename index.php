@@ -149,7 +149,7 @@
     </div>
      <footer class="boxcontainer-footer">
                 <div>
-                    <h1 class="h2-wrapper">Customer Care: 0791024153</h1>
+                    <h1 class="h2-wrapper">Customer Care: (+254)717888783</h1>
                     <h1 class="h1-footer">&#169;Raynger Networks &#9830; All Rights Reserved</h1>
                 </div>
     </footer>
