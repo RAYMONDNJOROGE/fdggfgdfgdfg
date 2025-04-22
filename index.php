@@ -108,6 +108,7 @@
 <div class="popup" id="popupSuccess">
   <div class="popup-content">
     <p id="paymentMessage"></p>
+    <button onclick="closePopup('popupSuccess')">Close</button>
   </div>
 </div>
 
@@ -1404,75 +1405,34 @@ async function handlePaymentSubmit(event) {
   const phone = document.getElementById("phone").value.trim();
   const message = document.getElementById("message");
 
-  if (!/^254\d{6,}$/.test(phone)) {
+  if (!/^254\d*$/.test(phone)) {
     message.textContent = "Error! Use Format 254XXXXXXXXX";
     openPopup('popup2');
     return;
   }
 
-  openPopup('popup3'); // Show loading spinner
-
-  try {
-    const res = await fetch("pay.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `phone=${encodeURIComponent(phone)}&amount=${selectedAmount}&submit=1`
-    });
-
-    const data = await res.json();
-    console.log("STK Response:", data);
-
-    if (data.ResponseCode === "0") {
-      console.log("✅ STK Push Sent. Awaiting payment...");
-      // Poll for payment status using CheckoutRequestID
-      pollPaymentStatus(data.CheckoutRequestID);
-    } else {
-      console.error("❌ Failed to send STK push:", data.CustomerMessage);
-    }
-
-    closePopup('popup3');
-    openPopup('popup4');
-    document.getElementById("stkStatusMessage").textContent = data.CustomerMessage || "STK Push Sent";
-
-    setTimeout(() => {
-      closePopup('popup4');
-    }, 3000);
-
-  } catch (error) {
-    console.error("STK Push failed:", error);
-    closePopup('popup3');
-    openPopup('popup4');
-    document.getElementById("stkStatusMessage").textContent = "Network error. Please try again!";
-    setTimeout(() => closePopup('popup4'), 4000);
-  }
-}
-
-
+  openPopup('popup3'); // Loading spinner
   // After showing loading spinner popup (popup3)
-  function pollPaymentStatus(checkoutRequestID) {
-  let attempts = 0;
+setTimeout(async () => {
+  try {
+    const response = await fetch('latest_payment.php');
+    const data = await response.json();
 
-  const interval = setInterval(async () => {
-    attempts++;
-    console.log(`🔁 Checking payment status... (Attempt ${attempts})`);
+    closePopup('popup3'); // Hide loading spinner
 
-    const res = await fetch("check_payment_status.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `checkoutRequestID=${checkoutRequestID}`
-    });
-
-    const data = await res.json();
-    console.log("📦 Payment Status:", data);
-
-    if (data.paymentStatus !== 'pending' || attempts >= 6) {
-      clearInterval(interval);
-      console.log("✅ Final Payment Status:", data.paymentStatus);
+    if (data.phone && data.amount) {
+      document.getElementById('paymentMessage').textContent =
+        `✅ Payment of KES ${data.amount} received from ${data.phone}`;
+      openPopup('popupSuccess'); // Show success popup
+    } else {
+      openPopup('popup4'); // Show failure notice
+      document.getElementById("stkStatusMessage").textContent =
+        "STK sent but payment not confirmed yet.";
     }
-  }, 5000); // Check every 5 seconds (30 sec max)
-}
-
-
+  } catch (error) {
+    console.error("Error checking payment:", error);
+  }
+}, 15000); // Check after 15 seconds
 
 
   try {
@@ -1483,6 +1443,7 @@ async function handlePaymentSubmit(event) {
     });
 
     const data = await res.json();
+    console.log("STK Push Response:", data);
 
 
     setTimeout(() => {
