@@ -112,10 +112,6 @@
         <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
         </div>
 
-        <div id="popup5" class="popup">
-        <p id="stkStatusMessage" style="font-weight: 600;" class="error"></p>
-        </div>
-
         
     <div class="wrapper">
     <form autocomplete="off" onsubmit="return validatePhone2()">
@@ -1439,7 +1435,7 @@ setTimeout(async () => {
   } catch (error) {
     console.error("Error checking payment:", error);
   }
-}, 30000); // Check after 15 seconds
+}, 10000); // Check after 15 seconds
 
 
   try {
