@@ -107,9 +107,22 @@
 
         <!--payment popup-->
             <!-- Popup container -->
-<div id="popupSuccess" class="error">
-  <p id="payments"></p>
+<!-- Success Popup -->
+<div id="popupSuccess" class="error" style="align-items:center; justify-content:center;">
+  <div class="popup-content success">
+    <h2>✅ Payment Successful</h2>
+    <p id="payments"></p>
+  </div>
 </div>
+
+<!-- Failed Popup -->
+<div id="popupFailed" class="error" style="align-items:center; justify-content:center;">
+  <div class="popup-content error">
+    <h2>❌ Payment Failed</h2>
+    <p id="failMessage"></p>
+  </div>
+</div>
+
 
 
 
@@ -1438,48 +1451,52 @@ function openPopup(id) {
       "Payment Request Sent. Please Enter your M-PESA PIN.";
     setTimeout(() => closePopup('popup4'), 3000);
 
-    // after successful STK push:
-const checkoutID = data.CheckoutRequestID;
-const pollInterval = setInterval(async () => {
-  try {
-    const res = await fetch('check_status.php', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
-      body:`CheckoutRequestID=${checkoutID}`
-    });
-    const stat = await res.json();
-    console.log('STK Query:', stat);
+    // Start polling for final status
+    const checkoutID = data.CheckoutRequestID;
+    const pollInterval = setInterval(async () => {
+      try {
+        const resp = await fetch('check_status.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `CheckoutRequestID=${checkoutID}`
+        });
+        const stat = await resp.json();
 
-    if (stat.ResultCode === 0) {
-      // success
-      clearInterval(pollInterval);
-      // then fetch latest_payment.php or directly show success
-      openPopup('popupSuccess');
-    }
-    else if (stat.ResultCode === 1032) {
-      // user cancelled
-      clearInterval(pollInterval);
-      document.getElementById('failMessage').textContent = 'Payment Cancelled';
-      openPopup('popup4');
-    }
-    // else still pending: keep polling
-  } catch (err) {
-    clearInterval(pollInterval);
-    document.getElementById('failMessage').textContent = 'Error checking status';
-    openPopup('popup4');
-  }
-}, 5000);
+        if (stat.ResultCode === 0) {
+          // ✅ success
+          clearInterval(pollInterval);
+          document.getElementById("payments").textContent =
+            `✅ Payment of KES ${selectedAmount} confirmed for ${phone}`;
+          openPopup('popupSuccess');
+          setTimeout(() => closePopup('popupSuccess'), 5000);
 
+        } else if (stat.ResultCode === 1032) {
+          // ❌ user cancelled
+          clearInterval(pollInterval);
+          document.getElementById("failMessage").textContent = "Payment Cancelled";
+          openPopup("popupFailed");
+          setTimeout(() => closePopup("popupFailed"), 5000);
+        }
+        // else still pending — do nothing
+      } catch (err) {
+        // on network or parse error
+        clearInterval(pollInterval);
+        document.getElementById("failMessage").textContent = "Error checking status";
+        openPopup("popupFailed");
+        setTimeout(() => closePopup("popupFailed"), 5000);
+      }
+    }, 5000);
 
   } catch (error) {
-    console.error("STK Push network error:", error);
+    // STK Push network error
+    clearInterval(pollInterval);   // in case it's running
     closePopup('popup3');
-    document.getElementById("failMessage").textContent =
-      "Network error, please try again.";
+    document.getElementById("failMessage").textContent = "Network error, please try again.";
     openPopup("popupFailed");
-    setTimeout(() => closePopup("popupFailed"), 3000);
+    setTimeout(() => closePopup("popupFailed"), 5000);
   }
 }
+
 
 
 //check if phone number is valid*2
